@@ -1,4 +1,9 @@
-from flask import Flask, request, Response
+from flask import Flask, request, Response, abort
+import base64
+import hashlib
+import hmac
+import re
+from xml.sax.saxutils import escape
 import os
 import requests
 from google import genai
@@ -7,6 +12,37 @@ from google.genai import types
 app = Flask(__name__)
 client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 conversations = {}
+
+
+@app.before_request
+def verify_twilio_request():
+    """Authenticate form webhooks before routing or making outbound requests."""
+    token = os.environ.get("TWILIO_AUTH_TOKEN", "")
+    if not token:
+        abort(503, description="Twilio authentication is not configured")
+    base_url = os.environ.get("TWILIO_WEBHOOK_BASE_URL", "").rstrip("/")
+    path = request.full_path if request.query_string else request.path
+    url = base_url + path if base_url else request.url
+    payload = url + "".join(
+        key + value
+        for key in sorted(request.form)
+        for value in sorted(set(request.form.getlist(key)))
+    )
+    expected = base64.b64encode(
+        hmac.new(token.encode(), payload.encode(), hashlib.sha1).digest()
+    )
+    supplied = request.headers.get("X-Twilio-Signature", "").encode()
+    if not hmac.compare_digest(expected, supplied):
+        abort(403)
+
+
+def _recording_url_allowed(url, account_sid):
+    # Credentials must only go to this account's Twilio recording endpoint.
+    return bool(account_sid and re.fullmatch(
+        r"https://api\.twilio\.com/2010-04-01/Accounts/"
+        + re.escape(account_sid) + r"/Recordings/RE[0-9a-fA-F]{32}(?:\.wav)?",
+        url,
+    ))
 
 SYSTEM_PROMPT = """You are Axiom LLC's AI assistant helping potential clients understand our services.
 
@@ -150,11 +186,23 @@ def ai_conversation():
     if not recording_url:
         return Response('<Response><Redirect>/</Redirect></Response>', mimetype="text/xml")
 
+    account_sid = os.environ.get("TWILIO_ACCOUNT_SID", "")
+    if not _recording_url_allowed(recording_url, account_sid):
+        abort(400, description="Invalid recording URL")
+
     try:
-        audio = requests.get(
+        with requests.get(
             recording_url,
-            auth=(os.environ.get("TWILIO_ACCOUNT_SID"), os.environ.get("TWILIO_AUTH_TOKEN"))
-        )
+            auth=(account_sid, os.environ["TWILIO_AUTH_TOKEN"]),
+            timeout=15, allow_redirects=False, stream=True,
+        ) as audio:
+            if audio.status_code != 200:
+                raise ValueError("Recording download failed")
+            audio_bytes = bytearray()
+            for chunk in audio.iter_content(chunk_size=65536):
+                audio_bytes.extend(chunk)
+                if len(audio_bytes) > 8 * 1024 * 1024:
+                    raise ValueError("Recording exceeds 8 MiB")
 
         if caller not in conversations:
             conversations[caller] = []
@@ -162,7 +210,7 @@ def ai_conversation():
         contents = conversations[caller].copy()
         contents.append(types.Content(
             parts=[
-                types.Part.from_bytes(data=audio.content, mime_type="audio/wav"),
+                types.Part.from_bytes(data=bytes(audio_bytes), mime_type="audio/wav"),
                 types.Part(text="Transcribe and respond conversationally.")
             ],
             role="user"
@@ -182,7 +230,7 @@ def ai_conversation():
 
         return Response(f"""<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-    <Say>{ai_text}</Say>
+    <Say>{escape(ai_text)}</Say>
     <Say>Press star for main menu, press 9 to connect with our team, or continue speaking.</Say>
     <Gather action="/ai_nav" numDigits="1" timeout="2" finishOnKey="*9">
         <Record action="/ai" maxLength="30" playBeep="true"/>
@@ -224,4 +272,4 @@ def voicemail():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=False)

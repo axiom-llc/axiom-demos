@@ -13,6 +13,7 @@ gcloud run deploy $SERVICE_NAME \
   --set-env-vars GEMINI_API_KEY="$GEMINI_API_KEY" \
   --set-env-vars TWILIO_ACCOUNT_SID="$TWILIO_ACCOUNT_SID" \
   --set-env-vars TWILIO_AUTH_TOKEN="$TWILIO_AUTH_TOKEN" \
+  --set-env-vars TWILIO_WEBHOOK_BASE_URL="$TWILIO_WEBHOOK_BASE_URL" \
   --set-env-vars CONTACT_PHONE="$CONTACT_PHONE" \
   --project $PROJECT_ID
 

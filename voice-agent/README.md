@@ -31,6 +31,8 @@ python main.py
 ```bash
 ngrok http 5000
 ```
+Set `TWILIO_WEBHOOK_BASE_URL=https://<ngrok-url>` before starting Flask when using a proxy or tunnel. Use the public origin exactly as configured in Twilio; forwarded headers are not trusted.
+
 Set Twilio webhook: `Console → Phone Numbers → Voice → Webhook → https://<ngrok-url>/`
 
 ## Endpoints
@@ -61,3 +63,13 @@ bash deploy.sh
 8 → Live AI assistant
 9 → Direct team connection
 ```
+
+## Webhook security
+
+All routes require a valid `X-Twilio-Signature` using `TWILIO_AUTH_TOKEN`.
+Missing authentication configuration returns 503; invalid signatures return 403.
+Form signatures follow [Twilio’s documented algorithm](https://www.twilio.com/docs/usage/security).
+Set `TWILIO_WEBHOOK_BASE_URL` to the public HTTPS origin for Cloud Run as well as tunnels.
+Recording downloads accept only HTTPS `api.twilio.com` recording URLs for
+`TWILIO_ACCOUNT_SID`, with no redirects, a 15-second socket timeout and an 8 MiB
+response limit. AI responses are escaped before insertion into TwiML.
