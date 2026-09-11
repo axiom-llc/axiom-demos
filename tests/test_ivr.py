@@ -8,12 +8,10 @@ All Twilio webhook calls, Gemini API calls, and outbound HTTP requests
 are mocked. No network access required.
 """
 from __future__ import annotations
-import base64
-import hashlib
-import hmac
 import os
 import sys
 import pytest
+from twilio.request_validator import RequestValidator
 from unittest.mock import patch, MagicMock
 
 # Ensure the voice-agent directory is on the path
@@ -42,8 +40,10 @@ def client():
     class SignedClient:
         def post(self, path, data=None):
             data = data or {}
-            payload = "http://localhost" + path + "".join(k + data[k] for k in sorted(data))
-            signature = base64.b64encode(hmac.new(b"test-token", payload.encode(), hashlib.sha1).digest()).decode()
+            signature = RequestValidator("test-token").compute_signature(
+                "http://localhost" + path,
+                data,
+            )
             return voice_main.app.test_client().post(path, data=data, headers={"X-Twilio-Signature": signature})
     return SignedClient()
 
@@ -170,8 +170,10 @@ def test_tampered_signature_rejected(client):
 def test_public_webhook_url_behind_proxy(client):
     import main
     url = "https://voice.example.com/route?source=call"
-    payload = url + "Digits1"
-    signature = base64.b64encode(hmac.new(b"test-token", payload.encode(), hashlib.sha1).digest()).decode()
+    signature = RequestValidator("test-token").compute_signature(
+        url,
+        {"Digits": "1"},
+    )
     with patch.dict(os.environ, {"TWILIO_WEBHOOK_BASE_URL": "https://voice.example.com"}):
         response = main.app.test_client().post("/route?source=call", data={"Digits": "1"}, headers={"X-Twilio-Signature": signature})
     assert response.status_code == 200
