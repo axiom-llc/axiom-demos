@@ -208,3 +208,34 @@ def test_failed_or_oversized_download_never_reaches_ai(client, patch_genai_clien
         response = client.post("/ai", data={"RecordingUrl": url})
     assert b"An error occurred" in response.data
     patch_genai_client.models.generate_content.assert_not_called()
+
+
+def test_provider_errors_are_not_logged(client, caplog, capsys):
+    url = 'https://api.twilio.com/2010-04-01/Accounts/AC' + '1' * 32 + '/Recordings/RE' + '2' * 32
+    with patch('requests.get', side_effect=RuntimeError('secret-token private-recording')) as get:
+        response = client.post('/ai', data={'RecordingUrl': url})
+    assert b'An error occurred' in response.data
+    get.assert_called_once()
+    assert 'secret-token' not in caplog.text + capsys.readouterr().out
+
+
+def test_contact_phone_is_xml_text(client, monkeypatch):
+    import xml.etree.ElementTree as ET
+    monkeypatch.setenv('CONTACT_PHONE', '+1&<Dial>untrusted</Dial>')
+    for path in ['/route', '/ai_nav']:
+        root = ET.fromstring(client.post(path, data={'Digits': '9'}).data)
+        number = root.find('Dial/Number')
+        assert number.text == '+1&<Dial>untrusted</Dial>'
+        assert list(number) == []
+
+
+def test_record_is_not_nested_in_gather(client):
+    import xml.etree.ElementTree as ET
+    url = 'https://api.twilio.com/2010-04-01/Accounts/AC' + '1' * 32 + '/Recordings/RE' + '2' * 32
+    with patch('requests.get') as get:
+        audio = get.return_value.__enter__.return_value
+        audio.status_code = 200
+        audio.iter_content.return_value = [b'fake-audio']
+        root = ET.fromstring(client.post('/ai', data={'RecordingUrl': url}).data)
+    assert root.find('Gather/Record') is None
+    assert root.find('Record') is not None

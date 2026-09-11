@@ -46,3 +46,14 @@ python compliance_dashboard.py # start compliance assistant on :8051
 **API endpoints:**
 - `GET /api/logistics/daily_summary`
 - `GET /api/partner_performance/status?partner_contract=Amazon-Prime`
+
+## Live provider checks
+
+Manual validation on 2026-09-11 exercised the existing JSONPlaceholder ingestion
+into an in-memory SQLite database: six configured partners produced 30 task rows.
+Both Gemini compliance-brief and scenario-analysis functions returned nonempty
+results using the demo's synthetic contracts. No production database was changed.
+
+Install `google-genai>=1.66.0` for the explicit 60-second HTTP timeout and
+single-attempt policy. Provider failures display a generic message rather than
+upstream error bodies. Keep live credentials out of hosted CI.

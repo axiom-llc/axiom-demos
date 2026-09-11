@@ -6,13 +6,13 @@ AI-powered phone IVR system built with Twilio, Gemini, and Flask. Handles inboun
 Twilio (inbound call)
     └── Flask (TwiML routing)
             ├── IVR menu (presets 1-7)
-            ├── AI assistant (Gemini 2.5 Flash + audio transcription)
+            ├── AI assistant (Gemini 3.5 Flash + audio transcription)
             └── Call forwarding + voicemail fallback
 ```
 
 ## Stack
 - **Twilio** — telephony, call routing, audio recording
-- **Gemini 2.5 Flash Lite** — audio transcription + conversational AI
+- **Gemini 3.5 Flash Lite** — audio transcription + conversational AI
 - **Flask** — TwiML webhook server
 - **Gunicorn** — production WSGI
 - **Google Cloud Run** — serverless deployment target
@@ -73,3 +73,27 @@ Set `TWILIO_WEBHOOK_BASE_URL` to the public HTTPS origin for Cloud Run as well a
 Recording downloads accept only HTTPS `api.twilio.com` recording URLs for
 `TWILIO_ACCOUNT_SID`, with no redirects, a 15-second socket timeout and an 8 MiB
 response limit. AI responses are escaped before insertion into TwiML.
+
+## Provider validation
+
+Use `gemini-3.5-flash-lite` for voice generation. A live request to the former
+`gemini-2.5-flash-lite` returned HTTP 404 on 2026-09-11 despite successful model
+lookup; the replacement accepted synthetic speech. Gemini uses a 60-second HTTP
+timeout and one attempt. Log a generic failure, never upstream exception bodies.
+Keep `<Record>` outside `<Gather>` and escape dynamic text before emitting XML.
+
+Manual validation on 2026-09-11 established:
+
+- Twilio account authentication succeeded; an existing recording returned HTTP
+  200 and WAV data with valid credentials, and 401 with absent or incorrect auth.
+- Loopback HTTP requests signed by Twilio's official Python validator returned
+  200; invalid/missing signatures returned 403. These were controlled requests,
+  not provider-originated calls.
+- The canonical recording-download route passed with Gemini isolated. A separate
+  route check used synthetic speech and real Gemini with downloading isolated.
+  No private recording was forwarded to Gemini or saved as a test artifact.
+- No incoming phone number or public webhook origin was configured. End-to-end
+  Twilio delivery remains untested; no calls, numbers, or infrastructure were
+  created. Configure an authorized development webhook before testing delivery.
+
+Keep live validation manual. Do not put account credentials into CI.

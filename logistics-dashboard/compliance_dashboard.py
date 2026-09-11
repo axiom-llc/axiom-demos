@@ -5,16 +5,17 @@ import dash_bootstrap_components as dbc
 import os
 
 from google import genai
+from google.genai import types
 
 GEMINI_READY = False
 try:
-    client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+    client = genai.Client(api_key=os.environ["GEMINI_API_KEY"], http_options=types.HttpOptions(timeout=60000, retry_options=types.HttpRetryOptions(attempts=1)))
     print("[INFO] Gemini API configured successfully for dashboard.")
     GEMINI_READY = True
 except KeyError:
     print("[ERROR] DASHBOARD: GEMINI_API_KEY environment variable not found!")
-except Exception as e:
-    print(f"[ERROR] DASHBOARD: Failed to configure Gemini API: {e}")
+except Exception:
+    print("[ERROR] DASHBOARD: Failed to configure Gemini API")
 
 SIMULATED_CONTRACTS = {
     "Amazon-Prime": """
@@ -54,8 +55,8 @@ def get_partner_compliance_brief_for_dashboard(partner_name):
     try:
         response = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
         return dcc.Markdown(response.text)
-    except Exception as e:
-        return dcc.Markdown(f"Error with Gemini: {e}")
+    except Exception:
+        return dcc.Markdown("Gemini provider operation failed.")
 
 
 def analyze_scenario_compliance_for_dashboard(partner_name, operational_scenario):
@@ -70,8 +71,8 @@ def analyze_scenario_compliance_for_dashboard(partner_name, operational_scenario
     try:
         response = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
         return dcc.Markdown(response.text)
-    except Exception as e:
-        return dcc.Markdown(f"Error with Gemini: {e}")
+    except Exception:
+        return dcc.Markdown("Gemini provider operation failed.")
 
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])

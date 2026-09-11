@@ -129,3 +129,17 @@ class TestPartnerStatus:
         health = data["partner_service_health_summary"]
         assert "OK" in health
         assert "Action Required" in health
+
+
+def test_dashboard_provider_errors_are_redacted(monkeypatch, capsys):
+    pytest.importorskip('dash')
+    pytest.importorskip('dash_bootstrap_components')
+    import compliance_dashboard as dashboard
+    monkeypatch.setattr(dashboard, 'GEMINI_READY', True)
+    def fail(*args, **kwargs):
+        raise RuntimeError('secret-key private-contract')
+    monkeypatch.setattr(dashboard.client.models, 'generate_content', fail)
+    for result in [dashboard.get_partner_compliance_brief_for_dashboard('Amazon-Prime'),
+                   dashboard.analyze_scenario_compliance_for_dashboard('Amazon-Prime', 'late shipment')]:
+        assert result.children == 'Gemini provider operation failed.'
+    assert 'secret-key' not in capsys.readouterr().out

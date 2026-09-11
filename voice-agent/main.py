@@ -10,7 +10,10 @@ from google import genai
 from google.genai import types
 
 app = Flask(__name__)
-client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+client = genai.Client(
+    api_key=os.environ.get("GEMINI_API_KEY"),
+    http_options=types.HttpOptions(timeout=60000, retry_options=types.HttpRetryOptions(attempts=1)),
+)
 conversations = {}
 
 
@@ -163,7 +166,7 @@ def route():
 <Response>
     <Say>Connecting you to our team now. Please hold.</Say>
     <Dial timeout="25" action="/voicemail">
-        <Number>{os.environ.get("CONTACT_PHONE")}</Number>
+        <Number>{escape(os.environ.get("CONTACT_PHONE", ""))}</Number>
     </Dial>
 </Response>""", mimetype="text/xml")
 
@@ -217,7 +220,7 @@ def ai_conversation():
         ))
 
         response = client.models.generate_content(
-            model="gemini-2.5-flash-lite",
+            model="gemini-3.5-flash-lite",
             contents=contents,
             config=types.GenerateContentConfig(system_instruction=SYSTEM_PROMPT)
         )
@@ -232,13 +235,12 @@ def ai_conversation():
 <Response>
     <Say>{escape(ai_text)}</Say>
     <Say>Press star for main menu, press 9 to connect with our team, or continue speaking.</Say>
-    <Gather action="/ai_nav" numDigits="1" timeout="2" finishOnKey="*9">
-        <Record action="/ai" maxLength="30" playBeep="true"/>
-    </Gather>
+    <Gather action="/ai_nav" numDigits="1" timeout="2" finishOnKey="*9"/>
+    <Record action="/ai" maxLength="30" playBeep="true"/>
 </Response>""", mimetype="text/xml")
 
-    except Exception as e:
-        print(f"Error: {e}")
+    except Exception:
+        app.logger.error("Voice provider operation failed")
         return Response('<Response><Say>An error occurred.</Say><Redirect>/</Redirect></Response>', mimetype="text/xml")
 
 
@@ -252,7 +254,7 @@ def ai_nav():
 <Response>
     <Say>Transferring you to our team now.</Say>
     <Dial timeout="25" action="/voicemail">
-        <Number>{os.environ.get("CONTACT_PHONE")}</Number>
+        <Number>{escape(os.environ.get("CONTACT_PHONE", ""))}</Number>
     </Dial>
 </Response>""", mimetype="text/xml")
     return ai_conversation()
