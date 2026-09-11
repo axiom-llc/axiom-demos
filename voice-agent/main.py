@@ -1,13 +1,11 @@
 from flask import Flask, request, Response, abort
-import base64
-import hashlib
-import hmac
 import re
 from xml.sax.saxutils import escape
 import os
 import requests
 from google import genai
 from google.genai import types
+from twilio.request_validator import RequestValidator
 
 app = Flask(__name__)
 client = genai.Client(
@@ -19,24 +17,27 @@ conversations = {}
 
 @app.before_request
 def verify_twilio_request():
-    """Authenticate form webhooks before routing or making outbound requests."""
+    """Authenticate Twilio form webhooks before routing or outbound requests."""
+    if request.method != "POST":
+        return None
+
     token = os.environ.get("TWILIO_AUTH_TOKEN", "")
     if not token:
         abort(503, description="Twilio authentication is not configured")
+
     base_url = os.environ.get("TWILIO_WEBHOOK_BASE_URL", "").rstrip("/")
     path = request.full_path if request.query_string else request.path
     url = base_url + path if base_url else request.url
-    payload = url + "".join(
-        key + value
-        for key in sorted(request.form)
-        for value in sorted(set(request.form.getlist(key)))
-    )
-    expected = base64.b64encode(
-        hmac.new(token.encode(), payload.encode(), hashlib.sha1).digest()
-    )
-    supplied = request.headers.get("X-Twilio-Signature", "").encode()
-    if not hmac.compare_digest(expected, supplied):
+    signature = request.headers.get("X-Twilio-Signature", "")
+
+    if not signature or not RequestValidator(token).validate(
+        url,
+        request.form,
+        signature,
+    ):
         abort(403)
+
+    return None
 
 
 def _recording_url_allowed(url, account_sid):
