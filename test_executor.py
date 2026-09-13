@@ -99,6 +99,40 @@ class TestCommandExecutorSecurity(unittest.TestCase):
             shell=True,
         )
 
+    @patch("executor.subprocess.run")
+    def test_unknown_transcript_invokes_no_subprocess(self, mock_run):
+        self.executor.execute("some unknown transcript phrase")
+        mock_run.assert_not_called()
+
+    @patch("executor.subprocess.run")
+    def test_static_command_with_prefix_or_suffix_does_not_invoke(self, mock_run):
+        variations = [
+            "please wallpaper",
+            "wallpaper now",
+            "please wallpaper now",
+            "lock screen please",
+            "do lock screen",
+        ]
+        for phrase in variations:
+            mock_run.reset_mock()
+            self.executor.execute(phrase)
+            mock_run.assert_not_called()
+
+    @patch("executor.subprocess.run")
+    def test_transcript_cannot_alter_append_or_interpolate_static_command(self, mock_run):
+        injection_attempts = [
+            "wallpaper && rm -rf /",
+            "wallpaper; reboot",
+            "wallpaper | cat",
+            "`reboot` wallpaper",
+            "lock screen && touch /tmp/pwned",
+            "lock screen; touch /tmp/pwned",
+        ]
+        for phrase in injection_attempts:
+            mock_run.reset_mock()
+            self.executor.execute(phrase)
+            mock_run.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()
