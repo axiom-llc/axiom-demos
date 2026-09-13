@@ -22,9 +22,12 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
 
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y libportaudio2
+
       - name: Install dependencies
         run: |
-          pip install pytest -r voice-agent/requirements.txt
+          pip install pytest -r voice-agent/requirements.txt -r voice-commander/requirements.txt
           # Install logistics dashboard deps
           pip install pandas plotly dash dash-bootstrap-components || true
 
@@ -35,6 +38,11 @@ jobs:
           TWILIO_AUTH_TOKEN: "test-token"
           CONTACT_PHONE: "+15550000000"
         run: pytest tests/ -q --tb=short
+
+      - name: Run AXIOM Voice Commander tests
+        run: |
+          cd voice-commander
+          python -m unittest -v test_config.py test_executor.py test_transcriber.py
 
   docker-build:
     runs-on: ubuntu-latest

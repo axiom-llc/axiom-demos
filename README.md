@@ -21,16 +21,21 @@ AI-powered voice IVR with telephony integration.
 Gemini API + Flask + Twilio — automated call handling, AI conversation loop, and intelligent call routing.
 Containerized for GCP Cloud Run deployment.
 
+### [voice-commander](./voice-commander/)
+
+Local, offline workstation voice automation.
+Vosk + PortAudio — real-time speech recognition, exact command matching, and secure static/dynamic command execution.
+Hardware-independent tests cover configuration, transcription flow, and command trust boundaries.
+
 ---
 
 ## Tests
 
-```bash
-pip install pytest flask requests google-genai
-pytest tests/ -q
-```
+    pip install pytest -r voice-agent/requirements.txt -r voice-commander/requirements.txt
+    pytest tests/ -q
+    (cd voice-commander && python -m unittest -v test_config.py test_executor.py test_transcriber.py)
 
-Smoke tests cover all Flask routes in both demos. Gemini API and Twilio calls are fully mocked — no credentials or network access required. CI runs on Python 3.11 and 3.12 on every push, plus a Docker build verification of the voice agent image.
+Smoke tests cover the hosted demos, while AXIOM Voice Commander has hardware-independent configuration, transcription-flow, and command-security tests. Gemini and Twilio calls are mocked in CI; microphone validation remains manual. CI runs on Python 3.11 and 3.12 on every push, plus a Docker build verification of the voice agent image.
 
 ---
 
