@@ -5,9 +5,9 @@ A configurable, real-time voice command application that listens for spoken inpu
 ## Features
 
 - **Real-time transcription** via offline Vosk toolkit — no cloud dependency
-- **Fully configurable** — all commands defined in `commands.json`, no code edits needed
+- **Configurable static commands** — static commands defined in `commands.json`; dynamic command types are implemented in code
 - **Portable paths** — `~` expansion supported in config
-- **Static & dynamic commands** — simple mappings and stateful patterns (e.g. `define this <word>`)
+- **Static & dynamic commands** — simple mappings and stateful multi-step commands (e.g. `define this`)
 - **Modular** — transcription and execution are separate components
 
 ## Prerequisites
