@@ -1,59 +1,75 @@
-# logistics-dashboard
+# Logistics dashboard demo
 
-AI-powered operational intelligence dashboard for a logistics company. Built as a working POC in ~4 hours.
+Prototype operational dashboard built from sample shipment data. It combines a
+local SQLite database, a small Flask API, Dash/Plotly views, and optional Gemini
+analysis. It is an applied example, not a logistics product or a production
+deployment.
 
-## Stack
+## What it demonstrates
 
-- **Gemini 2.5 Flash** — contract compliance analysis and scenario Q&A
-- **Flask** — REST API serving shipment and partner metrics
-- **Dash + Plotly** — live operational dashboard with auto-refresh
-- **SQLite** — ingested shipment and partner task data
-- **pandas** — CSV ingestion and on-time delivery calculation
+- CSV ingestion and calculated delivery/fuel metrics;
+- a Flask JSON API for summary and per-partner views;
+- a Dash dashboard that reads that API; and
+- optional Gemini-powered contract-compliance and scenario views using synthetic
+  contracts.
 
-## Structure
+The ingestion script also requests synthetic partner-task data from
+JSONPlaceholder. That request is an external demo dependency, not a partner
+integration or reliability guarantee.
 
-```
-data_ingestion.py       ← ingests shipments.csv + partner API data into SQLite
-operations_api.py       ← Flask REST API (daily summary, partner performance)
-live_dashboard.py       ← Dash dashboard consuming the API
-compliance_dashboard.py ← Gemini-powered contract compliance assistant
-dashboard.html          ← static dashboard mockup
-website.html            ← static marketing/landing page mockup
-shipments.csv           ← sample shipment data
-demo.sh                 ← orchestrates full demo: ingest → API → dashboard
-```
+## Requirements and setup
 
-## Setup
+Use Python 3.11 or 3.12, as used by the portfolio CI. Install the demo's direct
+dependencies in an isolated environment:
 
 ```bash
-pip install pandas requests flask dash dash-bootstrap-components plotly google-genai
-export GEMINI_API_KEY=your-key
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install pandas requests flask dash dash-bootstrap-components plotly google-genai
 ```
 
-## Usage
+Set `GEMINI_API_KEY` only before using `compliance_dashboard.py`. The local
+ingestion/API/dashboard path does not need it.
+
+## Run
+
+From this directory, create the local database first:
 
 ```bash
-# Run full demo (ingest → start API + dashboard servers)
-./demo.sh
-
-# Or run components individually:
-python data_ingestion.py      # populate SQLite DB
-python operations_api.py      # start API on :5000
-python live_dashboard.py      # start dashboard on :8050
-python compliance_dashboard.py # start compliance assistant on :8051
+python data_ingestion.py
+python operations_api.py
 ```
 
-**API endpoints:**
-- `GET /api/logistics/daily_summary`
-- `GET /api/partner_performance/status?partner_contract=Amazon-Prime`
+In a second terminal, start the dashboard:
 
-## Live provider checks
+```bash
+python live_dashboard.py
+```
 
-Manual validation on 2026-09-11 exercised the existing JSONPlaceholder ingestion
-into an in-memory SQLite database: six configured partners produced 30 task rows.
-Both Gemini compliance-brief and scenario-analysis functions returned nonempty
-results using the demo's synthetic contracts. No production database was changed.
+`demo.sh` starts the ingestion, API, and dashboard sequence. The individual
+commands are preferable when inspecting failures or stopping a single process.
 
-Install `google-genai>=1.66.0` for the explicit 60-second HTTP timeout and
-single-attempt policy. Provider failures display a generic message rather than
-upstream error bodies. Keep live credentials out of hosted CI.
+The Flask API listens on port 5000 and exposes:
+
+```text
+GET /api/logistics/daily_summary
+GET /api/partner_performance/status?partner_contract=Amazon-Prime
+```
+
+Run `python compliance_dashboard.py` separately for the optional Gemini view.
+It listens on port 8051; the Dash operational view uses port 8050.
+
+## Boundaries
+
+The checked-in CSV, partner names, contracts, and task-health data are sample or
+synthetic. SQLite is a local demo database. The code has no authentication,
+multi-user access control, production data contract, background job system, or
+deployment-hardening claim. Provider failures are displayed generically; Gemini
+calls use one attempt and a 60-second HTTP timeout. Keep provider credentials
+out of source control and CI.
+
+## Validation
+
+The portfolio suite smoke-tests web-facing demo behavior on Python 3.11 and
+3.12. Provider calls are mocked in CI. A live provider check or availability of
+JSONPlaceholder is not established by those tests.

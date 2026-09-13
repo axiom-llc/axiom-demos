@@ -1,99 +1,78 @@
-# Axiom LLC Voice Agent
-AI-powered phone IVR system built with Twilio, Gemini, and Flask. Handles inbound calls with a multi-option menu, preset service information, and a live AI assistant for natural-language Q&A about services and past projects.
+# AXIOM Voice Agent demo
 
-## Architecture
-```
-Twilio (inbound call)
-    └── Flask (TwiML routing)
-            ├── IVR menu (presets 1-7)
-            ├── AI assistant (Gemini 3.5 Flash + audio transcription)
-            └── Call forwarding + voicemail fallback
-```
+Flask/TwiML example for a Twilio phone menu with optional Gemini-assisted audio
+responses. It demonstrates webhook routing, request-signature validation,
+recording handling, and a simple in-memory conversation history. It is a demo,
+not a managed telephony service or a claim of end-to-end call reliability.
 
-## Stack
-- **Twilio** — telephony, call routing, audio recording
-- **Gemini 3.5 Flash Lite** — audio transcription + conversational AI
-- **Flask** — TwiML webhook server
-- **Gunicorn** — production WSGI
-- **Google Cloud Run** — serverless deployment target
+## Requirements
 
-## Setup
+Use Python 3.11 and install the pinned application dependencies:
+
 ```bash
-pip install -r requirements.txt
-export GEMINI_API_KEY="..."
-export TWILIO_ACCOUNT_SID="ACxxxx"
-export TWILIO_AUTH_TOKEN="..."
-export CONTACT_PHONE="+1xxxxxxxxxx"
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+```
+
+Configure these values for the complete recording, AI, and forwarding flow.
+`TWILIO_AUTH_TOKEN` is required for every webhook request:
+
+```bash
+export GEMINI_API_KEY='...'
+export TWILIO_ACCOUNT_SID='AC...'
+export TWILIO_AUTH_TOKEN='...'
+export CONTACT_PHONE='+1...'
+```
+
+For a public deployment or tunnel, also set `TWILIO_WEBHOOK_BASE_URL` to the
+exact public HTTPS origin registered with Twilio. The application does not trust
+forwarded headers to reconstruct that origin.
+
+## Run and connect
+
+```bash
 python main.py
 ```
 
-## Local Testing
+For a local tunnel, expose port 5000 and configure Twilio's Voice webhook with
+the resulting `https://…/` URL. For example:
+
 ```bash
 ngrok http 5000
-```
-Set `TWILIO_WEBHOOK_BASE_URL=https://<ngrok-url>` before starting Flask when using a proxy or tunnel. Use the public origin exactly as configured in Twilio; forwarded headers are not trusted.
-
-Set Twilio webhook: `Console → Phone Numbers → Voice → Webhook → https://<ngrok-url>/`
-
-## Endpoints
-| Route | Description |
-|---|---|
-| `POST /` | Main IVR menu |
-| `POST /route` | Keypress dispatcher |
-| `POST /nav` | Menu navigation (repeat/back) |
-| `POST /ai` | AI conversation loop |
-| `POST /ai_nav` | AI session navigation |
-| `POST /voicemail` | Voicemail fallback |
-
-## Deployment
-```bash
-# Configure PROJECT_ID and SERVICE_NAME in deploy.sh first
-bash deploy.sh
+export TWILIO_WEBHOOK_BASE_URL='https://your-tunnel.example'
 ```
 
-## IVR Menu
-```
-1 → Automation services
-2 → AI/ML services
-3 → DevOps & infrastructure
-4 → Data pipeline engineering
-5 → Rates & availability
-6 → Portfolio & case studies
-7 → Contact information
-8 → Live AI assistant
-9 → Direct team connection
-```
+Use the configured public origin exactly in Twilio and in
+`TWILIO_WEBHOOK_BASE_URL`; it participates in signature validation.
 
-## Webhook security
+The application accepts these POST routes: `/`, `/route`, `/nav`, `/ai`,
+`/ai_nav`, and `/voicemail`. The menu provides preset responses, recording-based
+AI interaction, forwarding to `CONTACT_PHONE`, and a voicemail fallback.
 
-All routes require a valid `X-Twilio-Signature` using `TWILIO_AUTH_TOKEN`.
-Missing authentication configuration returns 503; invalid signatures return 403.
-Form signatures follow [Twilio’s documented algorithm](https://www.twilio.com/docs/usage/security).
-Set `TWILIO_WEBHOOK_BASE_URL` to the public HTTPS origin for Cloud Run as well as tunnels.
-Recording downloads accept only HTTPS `api.twilio.com` recording URLs for
-`TWILIO_ACCOUNT_SID`, with no redirects, a 15-second socket timeout and an 8 MiB
-response limit. AI responses are escaped before insertion into TwiML.
+## Security and operating boundaries
 
-## Provider validation
+Every POST route requires a valid `X-Twilio-Signature`. Missing authentication
+configuration returns 503; invalid or missing signatures return 403. Recording
+downloads are restricted to HTTPS `api.twilio.com` URLs for the configured
+account, use no redirects, have a 15-second socket timeout, and stop at 8 MiB.
+Dynamic TwiML text is escaped.
 
-Use `gemini-3.5-flash-lite` for voice generation. A live request to the former
-`gemini-2.5-flash-lite` returned HTTP 404 on 2026-09-11 despite successful model
-lookup; the replacement accepted synthetic speech. Gemini uses a 60-second HTTP
-timeout and one attempt. Log a generic failure, never upstream exception bodies.
-Keep `<Record>` outside `<Gather>` and escape dynamic text before emitting XML.
+Gemini calls use `gemini-3.5-flash-lite`, one attempt, and a 60-second timeout.
+Errors are logged generically rather than exposing provider response bodies.
+Conversation history is process-local memory; it is not durable and is not safe
+for multi-worker session continuity. The example does not provide rate limiting,
+data retention controls, consent handling, delivery monitoring, or a production
+security review. Keep Twilio and Gemini credentials out of CI and source control.
 
-Manual validation on 2026-09-11 established:
+## Container and deployment
 
-- Twilio account authentication succeeded; an existing recording returned HTTP
-  200 and WAV data with valid credentials, and 401 with absent or incorrect auth.
-- Loopback HTTP requests signed by Twilio's official Python validator returned
-  200; invalid/missing signatures returned 403. These were controlled requests,
-  not provider-originated calls.
-- The canonical recording-download route passed with Gemini isolated. A separate
-  route check used synthetic speech and real Gemini with downloading isolated.
-  No private recording was forwarded to Gemini or saved as a test artifact.
-- No incoming phone number or public webhook origin was configured. End-to-end
-  Twilio delivery remains untested; no calls, numbers, or infrastructure were
-  created. Configure an authorized development webhook before testing delivery.
+The Dockerfile runs Gunicorn with one worker. `deploy.sh` is a convenience script
+for an operator who has already configured a Google Cloud project, service name,
+credentials, and required environment variables. Running it creates or updates
+hosted resources; it is not part of local validation and should be reviewed
+before use.
 
-Keep live validation manual. Do not put account credentials into CI.
+Portfolio CI mocks Gemini and Twilio behavior and verifies that the image builds.
+It does not validate a reachable public webhook, an inbound call, recording
+delivery, or live Gemini/Twilio credentials.

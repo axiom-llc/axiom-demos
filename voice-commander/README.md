@@ -1,51 +1,67 @@
-# AXIOM Voice Commander
+# AXIOM Voice Commander demo
 
-AXIOM Voice Commander is a configurable, real-time local voice automation system that listens for spoken input, transcribes it offline, and executes predefined commands.
+Local workstation voice-automation example. Vosk transcribes microphone audio
+offline and the executor matches configured phrases to commands. It complements
+the cloud-telephony Voice Agent, but has a materially different boundary: it can
+execute commands on the local workstation.
 
-It complements AXIOM Voice Agent: Voice Agent handles cloud telephony and external callers, while Voice Commander provides offline workstation voice control.
+## Requirements
 
-## Features
+Python 3, a working microphone, PortAudio support, and a downloaded Vosk model
+are required. The included commands target an Arch Linux desktop; install its
+runtime dependencies there, or adapt the configuration for another platform:
 
-- **Real-time transcription** via offline Vosk toolkit — no cloud dependency
-- **Configurable static commands** — static commands defined in `commands.json`; dynamic command types are implemented in code
-- **Portable paths** — `~` expansion supported in config
-- **Static & dynamic commands** — simple mappings and stateful multi-step commands (e.g. `define this`)
-- **Modular** — transcription and execution are separate components
-
-## Prerequisites
-
-Python 3 and a working microphone/audio input are required.
-
-**Runtime system dependencies** (Arch Linux):
 ```bash
-sudo pacman -S portaudio curl libnotify
+sudo pacman -S portaudio curl libnotify unzip
 ```
 
-`notify-send` is provided by `libnotify` and requires a running notification daemon.
+Download `vosk-model-small-en-us-0.15` from the
+[Vosk model catalog](https://alphacephei.com/vosk/models), then extract it at
+the path used by your configuration, for example:
 
-**Setup helper** (Arch Linux):
-```bash
-sudo pacman -S unzip
-```
-
-**Vosk language model:**
 ```bash
 mkdir -p ~/.config/vosk
 unzip vosk-model-small-en-us-0.15.zip -d ~/.config/vosk/
 ```
-Download from: https://alphacephei.com/vosk/models
 
-## Setup
+## Configure and run
 
 ```bash
 python3 -m pip install -r requirements.txt
 cp commands.example.json commands.json
-# Edit commands.json: set model_path and customize commands
+python3 main.py
 ```
 
-## Usage
+Edit `commands.json` before running. It must contain `settings` with
+`model_path`, `target_sample_rate`, `device_id`, and `buffer_size`, plus
+`commands`. `~` is expanded in configured model and project-manager paths.
+Choose a different file with `python3 main.py --config /path/to/commands.json`.
+
+## Execution boundary
+
+Static commands require exact transcript matches and are executed as shell
+strings from the local configuration. Treat that configuration as trusted code:
+a person with write access to it can cause arbitrary local commands to run.
+
+The `project start <name>` path passes the spoken project name as an argument
+vector; the definition lookup and notification paths also use argument vectors.
+The `project stop` mapping remains a configured shell command. No fuzzy or
+prefix matching is used for static commands. Network access is required only for
+the optional `define this` lookup through `dict.org`; Vosk transcription itself
+is offline.
+
+This demo has no privilege separation, confirmation prompt, command allowlist
+beyond its local configuration, sandbox, or audit trail. Do not use an
+unreviewed configuration or treat it as a security boundary.
+
+## Validation
+
+The repository includes hardware-independent tests for configuration,
+transcription flow, and command execution boundaries:
 
 ```bash
-python3 main.py
-python3 main.py --config /path/to/commands.json
+python -m unittest -v test_config.py test_executor.py test_transcriber.py
 ```
+
+Portfolio CI runs those tests on Python 3.11 and 3.12. It does not test an
+actual microphone, installed desktop commands, the Vosk model, or dict.org.

@@ -4,29 +4,28 @@ Applied integration examples for AXIOM components and adjacent automation
 workflows. Each demo has its own dependencies, configuration, and operational
 boundary; these examples are not a shared runtime or deployment product.
 
-![CI](https://github.com/axiom-llc/axiom-demos/actions/workflows/ci.yml/badge.svg)
-
----
-
 ## Included demonstrations
 
 ### [logistics-dashboard](./logistics-dashboard/)
 
-Logistics dashboard example using Gemini, Flask, Dash, and SQLite.
+Prototype dashboard using sample shipment data, a public placeholder API,
+Flask, Dash, SQLite, and an optional Gemini analysis view.
 
 ### [voice-agent](./voice-agent/)
 
-Voice IVR example using Gemini, Flask, and Twilio. It includes a Dockerfile and
-Cloud Run deployment script; deployment is an operator-controlled action.
+Twilio webhook/IVR example using Flask and optional Gemini audio analysis. It
+includes a Dockerfile and Cloud Run script, but deployment and telephony
+configuration remain operator-controlled.
 
 ### [voice-commander](./voice-commander/)
 
-Local workstation voice automation using Vosk and PortAudio. It uses configured
-command mappings; review the command configuration before enabling execution.
+Local workstation voice automation using Vosk and PortAudio. It executes trusted
+static command strings from local configuration; review that configuration before
+enabling it.
 
 ---
 
-## Tests
+## Development and validation
 
 ```bash
 python -m pip install pytest -r voice-agent/requirements.txt -r voice-commander/requirements.txt
@@ -34,12 +33,12 @@ python -m pytest tests/ -q
 (cd voice-commander && python -m unittest -v test_config.py test_executor.py test_transcriber.py)
 ```
 
-Smoke tests cover the web-facing demos. Voice Commander has hardware-independent
-configuration, transcription-flow, and command-boundary tests. Gemini and Twilio
-calls are mocked in CI; microphone and end-to-end telephony delivery remain
-manual checks. CI runs on Python 3.11 and 3.12 for pushes and verifies the Voice
-Agent Docker build.
+Smoke tests cover the web-facing examples. Voice Commander has
+hardware-independent configuration, transcription-flow, and command-boundary
+tests. CI runs on Python 3.11 and 3.12, mocks Gemini and Twilio interactions,
+and builds the Voice Agent image. A microphone, live provider calls, public
+webhook reachability, and end-to-end telephony are outside that coverage.
 
 ---
 
-Built by [AXIOM LLC](https://axiom-llc.github.io)
+[AXIOM LLC](https://axiom-llc.github.io) · Examples, not a shared production runtime.
