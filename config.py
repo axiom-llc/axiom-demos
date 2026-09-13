@@ -18,8 +18,9 @@ def load_config(config_path: Path) -> Dict[str, Any]:
 
     # Expand tilde in paths for portability
     cfg["settings"]["model_path"] = str(Path(cfg["settings"]["model_path"]).expanduser())
-    if cfg["commands"]["dynamic"].get("project_manager_path"):
-        path = cfg["commands"]["dynamic"]["project_manager_path"]
-        cfg["commands"]["dynamic"]["project_manager_path"] = str(Path(path).expanduser())
+    dynamic = cfg["commands"].get("dynamic", {})
+    if dynamic.get("project_manager_path"):
+        path = dynamic["project_manager_path"]
+        dynamic["project_manager_path"] = str(Path(path).expanduser())
 
     return cfg

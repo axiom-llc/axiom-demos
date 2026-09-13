@@ -22,6 +22,14 @@ class TestLoadConfigValidation(unittest.TestCase):
         ):
             config.load_config(path)
 
+    def test_missing_dynamic_section_is_allowed(self):
+        path = self._write_config({
+            "settings": {"model_path": "~/model"},
+            "commands": {"static": {}},
+        })
+        cfg = config.load_config(path)
+        self.assertEqual(cfg["commands"], {"static": {}})
+
     def test_missing_commands_raises_value_error(self):
         path = self._write_config({"settings": {"model_path": "~/model"}})
         with self.assertRaisesRegex(
