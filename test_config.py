@@ -22,11 +22,49 @@ class TestLoadConfigValidation(unittest.TestCase):
         ):
             config.load_config(path)
 
-    def test_missing_dynamic_section_is_allowed(self):
-        path = self._write_config({
-            "settings": {"model_path": "~/model"},
+    def _valid_config(self):
+        return {
+            "settings": {
+                "model_path": "~/model",
+                "target_sample_rate": 16000,
+                "device_id": None,
+                "buffer_size": 4096,
+            },
             "commands": {"static": {}},
-        })
+        }
+
+    def test_missing_required_setting_raises_value_error(self):
+        for key in ("model_path", "target_sample_rate", "device_id", "buffer_size"):
+            with self.subTest(key=key):
+                data = self._valid_config()
+                del data["settings"][key]
+                path = self._write_config(data)
+                with self.assertRaisesRegex(ValueError, key):
+                    config.load_config(path)
+
+    def test_invalid_sample_rate_rejected(self):
+        data = self._valid_config()
+        data["settings"]["target_sample_rate"] = 0
+        path = self._write_config(data)
+        with self.assertRaisesRegex(ValueError, "target_sample_rate"):
+            config.load_config(path)
+
+    def test_invalid_buffer_size_rejected(self):
+        data = self._valid_config()
+        data["settings"]["buffer_size"] = 0
+        path = self._write_config(data)
+        with self.assertRaisesRegex(ValueError, "buffer_size"):
+            config.load_config(path)
+
+    def test_null_device_id_is_allowed(self):
+        path = self._write_config(self._valid_config())
+        cfg = config.load_config(path)
+        self.assertIsNone(cfg["settings"]["device_id"])
+
+    def test_missing_dynamic_section_is_allowed(self):
+        data = self._valid_config()
+        data["commands"] = {"static": {}}
+        path = self._write_config(data)
         cfg = config.load_config(path)
         self.assertEqual(cfg["commands"], {"static": {}})
 
