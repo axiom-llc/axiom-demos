@@ -1,6 +1,8 @@
-# Voice Commander
+# AXIOM Voice Commander
 
-A configurable, real-time voice command application that listens for spoken input, transcribes it to text, and executes predefined shell commands.
+AXIOM Voice Commander is a configurable, real-time local voice automation system that listens for spoken input, transcribes it offline, and executes predefined commands.
+
+It complements AXIOM Voice Agent: Voice Agent handles cloud telephony and external callers, while Voice Commander provides offline workstation voice control.
 
 ## Features
 

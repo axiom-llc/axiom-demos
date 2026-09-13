@@ -19,7 +19,7 @@ import transcriber
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="A real-time, configurable voice commander.")
+    parser = argparse.ArgumentParser(description="AXIOM Voice Commander — local offline voice automation.")
     parser.add_argument(
         "-c", "--config", type=Path,
         default=Path(__file__).parent / "commands.json",
