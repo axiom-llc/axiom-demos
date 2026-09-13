@@ -1,0 +1,25 @@
+{
+  "settings": {
+    "model_path": "~/.config/vosk/vosk-model-small-en-us-0.15",
+    "target_sample_rate": 16000,
+    "device_id": null,
+    "buffer_size": 4096
+  },
+  "commands": {
+    "static": {
+      "discord": "chromium https://discord.com/channels/@me",
+      "task manager": "geany ~/Documents/tasks.txt",
+      "wallpaper": "feh --bg-fill --randomize ~/Pictures/wallpapers/*",
+      "play music": "alacritty -e mpv --no-audio-display --shuffle --loop-playlist=inf ~/Music/songs/",
+      "web browser": "chromium",
+      "weather forecast": "poetry run weather-cli",
+      "system status": "alacritty -e htop",
+      "lock screen": "slock",
+      "show files": "pcmanfm",
+      "stop listening": "exit"
+    },
+    "dynamic": {
+      "project_manager_path": "~/.local/bin/project_manager.sh"
+    }
+  }
+}
