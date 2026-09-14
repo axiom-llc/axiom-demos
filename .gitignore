@@ -1,0 +1,7 @@
+/scene.json
+/render.png
+/scene.blend
+/scene.blend1
+*.blend1
+__pycache__/
+*.pyc

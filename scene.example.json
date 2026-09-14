@@ -1,0 +1,33 @@
+{
+  "camera": {
+    "location": [7.0, -9.0, 6.0],
+    "ortho_scale": 7.0
+  },
+  "cube": {
+    "location": [0.0, 0.0, 2.0],
+    "size": 2.0,
+    "color": [0.75, 0.02, 0.03, 1.0],
+    "metallic": 1.0,
+    "roughness": 0.25
+  },
+  "world": {
+    "color": [0.005, 0.005, 0.005, 1.0],
+    "strength": 0.02
+  },
+  "lights": [
+    {
+      "location": [2.0, -4.0, 7.0],
+      "energy": 3600.0,
+      "size": 3.5
+    },
+    {
+      "location": [-4.0, 1.0, 5.0],
+      "energy": 150.0,
+      "size": 5.5
+    }
+  ],
+  "ground": {
+    "color": [0.02, 0.02, 0.02, 1.0],
+    "roughness": 0.5
+  }
+}
