@@ -25,15 +25,16 @@ enabling it.
 
 ### [news-briefing](./news-briefing/)
 
-Bounded news aggregation and AI synthesis demo with normalized source snapshots,
-optional market data and speech, offline replay, and explicit untrusted-content boundaries.
+Bounded news aggregation and Gemini synthesis demo with Open-Meteo current conditions
+and five-day forecasts, normalized source snapshots, optional market data, spoken output,
+offline replay, and explicit untrusted-content boundaries.
 
 ---
 
 ## Development and validation
 
 ```bash
-python -m pip install pytest -r voice-agent/requirements.txt -r voice-commander/requirements.txt
+python -m pip install pytest -r voice-agent/requirements.txt -r voice-commander/requirements.txt -r news-briefing/requirements.txt
 python -m pytest tests/ -q
 (cd voice-commander && python -m unittest -v test_config.py test_executor.py test_transcriber.py)
 (cd news-briefing && make test)

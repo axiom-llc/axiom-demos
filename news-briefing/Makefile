@@ -1,7 +1,7 @@
 .PHONY: check test
 
 check:
-	python3 -m py_compile news_briefing.py
+	python3 -m py_compile news_briefing.py gemini-synth.py
 	bash -n news-briefing.sh
 
 test: check

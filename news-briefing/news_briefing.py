@@ -39,10 +39,6 @@ def json_get(url: str, **kwargs):
     return json.loads(http_get(url, headers={"Accept": "application/json"}, **kwargs).decode("utf-8"))
 
 
-def text_get(url: str, **kwargs) -> str:
-    return http_get(url, **kwargs).decode("utf-8", errors="replace").strip()
-
-
 def rss_titles(payload: bytes, *, limit: int = 10) -> list[str]:
     root = ET.fromstring(payload)
     titles: list[str] = []
@@ -115,7 +111,6 @@ def collect(lat: str, lon: str, *, timeout: float, finnhub_key: str | None, reut
     return out
 
 
-
 WMO_DESCRIPTIONS = {
     0: "Clear sky", 1: "Mainly clear", 2: "Partly cloudy", 3: "Overcast",
     45: "Fog", 48: "Depositing rime fog",
@@ -154,6 +149,7 @@ def _open_meteo_weather(data):
             f"precipitation probability {daily['precipitation_probability_max'][i]}%"
         )
     return rows
+
 
 def _quote(data):
     return f"{data.get('c','?')} ({data.get('dp','?')}%)"

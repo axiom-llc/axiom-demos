@@ -27,7 +27,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install pytest -r voice-agent/requirements.txt -r voice-commander/requirements.txt
+          pip install pytest -r voice-agent/requirements.txt -r voice-commander/requirements.txt -r news-briefing/requirements.txt
           # Install logistics dashboard deps
           pip install pandas plotly dash dash-bootstrap-components || true
 
