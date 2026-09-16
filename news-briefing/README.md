@@ -1,6 +1,6 @@
 # News Briefing
 
-A bounded, auditable morning-briefing pipeline. It acquires public weather, news, and market data, normalizes it into a structured snapshot, synthesizes concise spoken prose with Gemini, writes the result atomically, and reads it aloud by default.
+A bounded, auditable executive-intelligence briefing pipeline. It acquires public weather, AI/frontier-technology, financial, and world-news data, normalizes it into a structured snapshot, synthesizes a concise decision-oriented briefing with Gemini, writes the result atomically, and reads it aloud by default.
 
 ## Design
 
@@ -9,9 +9,9 @@ A bounded, auditable morning-briefing pipeline. It acquires public weather, news
 - **External content is untrusted data.** The synthesis prompt forbids following instructions embedded in feeds or API responses.
 - **Network access is bounded.** Requests use explicit timeouts and a 1 MB response-size limit.
 - **Partial source failures are non-fatal.** Failures are recorded in `errors`; unavailable sections remain explicit to synthesis.
-- **Market data is optional.** Finnhub supplies SPY/QQQ/VIXY only when `FINNHUB_API_KEY` is present; CoinGecko Bitcoin acquisition remains best-effort.
-- **News sources are bounded.** Technology uses Hacker News, Lobsters, and recent GitHub repositories; world news uses BBC plus optional `BRIEF_REUTERS_RSS`.
-- **Reuters discovery is configurable.** The example RSS value is a Google News query constrained to Reuters URLs, not an official Reuters feed.
+- **Financial intelligence is layered.** Finnhub supplies SPY/QQQ/VIXY when `FINNHUB_API_KEY` is present, CoinGecko supplies Bitcoin best-effort, and a bounded Reuters-constrained Google News query adds material markets, macroeconomics, monetary-policy, stocks, and bonds coverage.
+- **AI has a dedicated source lane.** A bounded Reuters-constrained Google News query covers material AI, robotics, chips/semiconductors, and space developments instead of general developer-news feeds.
+- **World news stays bounded.** BBC supplies broad world coverage; optional `BRIEF_REUTERS_RSS` adds operator-selected Reuters discovery. Reuters-constrained Google News queries are discovery mechanisms, not official Reuters feeds.
 - **Speech is enabled by default.** `espeak` generates WAV audio and `aplay` plays it; use `--no-speech` for text-only operation.
 - **Snapshots support replay.** `--snapshot-out` records normalized inputs; `--snapshot-in` replays saved acquisition data without source-network calls; synthesis still uses the configured backend.
 
@@ -101,6 +101,6 @@ bash -n news-briefing.sh
 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest -v tests.test_news_briefing
 ```
 
-The suite covers RSS parsing, coordinate validation, Open-Meteo normalization, snapshot bounds, prompt-injection boundaries, partial acquisition failure, synthesis failure, atomic output, required live configuration, the bundled Gemini default, and end-to-end snapshot replay.
+The suite covers RSS parsing, coordinate validation, Open-Meteo normalization, snapshot bounds, executive-section and prompt-injection boundaries, partial acquisition failure, synthesis failure, atomic output, required live configuration, the bundled Gemini default, and end-to-end snapshot replay.
 
 A live end-to-end run additionally requires network access, valid provider configuration, and—unless `--no-speech` is used—a working local audio path. The implementation at commit `b2db460` was verified from a fresh clone on 2026-09-16: all 13 tests passed, live Open-Meteo/Gemini generation wrote `~/brief.txt`, and spoken output was heard successfully.
