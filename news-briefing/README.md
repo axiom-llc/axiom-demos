@@ -35,9 +35,9 @@ Gemini API quotas and pricing are controlled by the Google API project/account, 
 
 ```bash
 export GEMINI_API_KEY="..."
-export BRIEF_LAT="40.268368"
-export BRIEF_LON="-74.505238"
-export BRIEF_LOCATION="East Windsor, NJ"
+export BRIEF_LAT="40.7128"
+export BRIEF_LON="-74.0060"
+export BRIEF_LOCATION="New York, NY"
 
 # Optional overrides:
 # export BRIEF_GEMINI_MODEL="gemini-3.8-flash"
