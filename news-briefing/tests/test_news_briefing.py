@@ -64,13 +64,16 @@ class ParserTests(unittest.TestCase):
 
 
 class IOTests(unittest.TestCase):
-    def test_speech_text_normalizes_symbols_and_units(self):
-        text = "### WEATHER\n**Now:** 73°F, wind 7 mph. #Update `clear` ~steady~."
+    def test_output_text_normalizes_spoken_form(self):
+        text = "### AI & US WEATHER\n**Now:** 73°F, wind 7 mph, pressure 1027 hPa; BTC was $75,772. #Update"
         self.assertEqual(
-            nb.speech_text(text),
-            "WEATHER\nNow: 73 Fahrenheit, wind 7 miles per hour. Update clear steady.",
+            nb.output_text(text),
+            "artificial intelligence and United States WEATHER\nNow: 73 Fahrenheit, wind 7 miles per hour, pressure 1027 hectopascal; Bitcoin was seventy-five thousand, seven hundred seventy-two dollars. Update",
         )
-        self.assertNotIn("#", nb.speech_text("# Heading # tag"))
+        self.assertEqual(nb.output_text("UK ETF IPO: $290 million; QQQ."), "United Kingdom exchange-traded fund initial public offering: two hundred ninety million dollars; Q Q Q.")
+        self.assertEqual(nb.output_text("U.S. Fed vs. UK in Sept."), "United States Federal Reserve versus United Kingdom in September")
+        for symbol in "#*_`~|<>\\":
+            self.assertNotIn(symbol, nb.output_text(f"word {symbol} word"))
 
     @patch("news_briefing.subprocess.Popen")
     def test_speak_sends_only_normalized_text_to_espeak(self, popen):
@@ -87,8 +90,8 @@ class IOTests(unittest.TestCase):
         aplay.communicate.return_value = (b"", b"")
         aplay.returncode = 0
         popen.side_effect = [espeak, aplay]
-        nb.speak("## WEATHER: 70F, wind 5 mph", voice="en", speed=149, pitch=38)
-        self.assertEqual(espeak.stdin.getvalue(), b"WEATHER: 70 Fahrenheit, wind 5 miles per hour")
+        nb.speak("## US WEATHER: 70F, wind 5 mph, 1015 hPa", voice="en", speed=149, pitch=38)
+        self.assertEqual(espeak.stdin.getvalue(), b"United States WEATHER: 70 Fahrenheit, wind 5 miles per hour, 1015 hectopascal")
 
     def test_atomic_write_replaces_and_leaves_no_temp(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -143,14 +146,14 @@ class CliTests(unittest.TestCase):
             out = tmp / "brief.txt"
             synth = tmp / "synth.py"
             snap.write_text(json.dumps({"weather": ["Clear"], "markets": [], "ai": ["Example"], "world": [], "errors": []}))
-            synth.write_text("import sys; print('Generated briefing')\n")
+            synth.write_text("import sys; print('## AI: 70F at 5 mph, $1.')\n")
             result = subprocess.run([
                 sys.executable, str(ROOT / "news_briefing.py"),
                 "--snapshot-in", str(snap), "--output", str(out),
                 "--synth-command", f"{sys.executable} {synth}", "--no-speech",
             ], capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertEqual(out.read_text(), "Generated briefing\n")
+            self.assertEqual(out.read_text(), "artificial intelligence: 70 Fahrenheit at 5 miles per hour, one dollar.\n")
 
     def test_default_synthesizer_is_bundled_gemini_adapter(self):
         with patch.dict(os.environ, {}, clear=True):

@@ -234,13 +234,64 @@ def atomic_write(path: Path, text: str) -> None:
         raise
 
 
-def speech_text(text: str) -> str:
+ACRONYMS = {
+    "AI": "artificial intelligence", "US": "United States", "UK": "United Kingdom",
+    "EU": "European Union", "ETF": "exchange-traded fund", "IPO": "initial public offering",
+    "CEO": "chief executive officer", "BTC": "Bitcoin", "RSS": "really simple syndication",
+}
+ABBREVIATIONS = {
+    "U.S.": "United States", "U.K.": "United Kingdom", "E.U.": "European Union",
+    "Fed": "Federal Reserve", "vs.": "versus", "Inc.": "incorporated",
+    "Corp.": "corporation", "Co.": "company", "Ltd.": "limited",
+    "Jan.": "January", "Feb.": "February", "Mar.": "March", "Apr.": "April",
+    "Jun.": "June", "Jul.": "July", "Aug.": "August", "Sept.": "September",
+    "Oct.": "October", "Nov.": "November", "Dec.": "December",
+}
+
+
+def _integer_words(n: int) -> str:
+    ones = ("zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen")
+    tens = ("", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety")
+    if n < 20: return ones[n]
+    if n < 100: return tens[n // 10] + (f"-{ones[n % 10]}" if n % 10 else "")
+    if n < 1000: return ones[n // 100] + " hundred" + (f" {_integer_words(n % 100)}" if n % 100 else "")
+    for value, name in ((1_000_000_000_000, "trillion"), (1_000_000_000, "billion"), (1_000_000, "million"), (1000, "thousand")):
+        if n >= value:
+            q, r = divmod(n, value)
+            return _integer_words(q) + f" {name}" + (f", {_integer_words(r)}" if r else "")
+    raise ValueError("currency amount too large")
+
+
+def _currency_words(match) -> str:
+    amount = match.group(1).replace(",", "")
+    scale = match.group(2)
+    whole, dot, fraction = amount.partition(".")
+    words = _integer_words(int(whole))
+    if dot and int(fraction):
+        words += " point " + " ".join(_integer_words(int(d)) for d in fraction)
+    if scale:
+        words += " " + scale.lower()
+    return words + (" dollar" if amount == "1" and not scale else " dollars")
+
+
+def output_text(text: str) -> str:
+    text = re.sub(r"\$([0-9][0-9,]*(?:\.[0-9]+)?)(?:\s+(thousand|million|billion|trillion))?", _currency_words, text, flags=re.IGNORECASE)
     text = re.sub(r"(?<=\d)\s*°?F\b", " Fahrenheit", text)
     text = re.sub(r"\bmph\b", "miles per hour", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bhPa\b", "hectopascal", text, flags=re.IGNORECASE)
+    for short, long in ABBREVIATIONS.items():
+        text = text.replace(short, long)
+    for short, long in ACRONYMS.items():
+        text = re.sub(rf"\b{re.escape(short)}\b", long, text)
+    text = re.sub(r"\b[A-Z]{2,4}\b", lambda m: " ".join(m.group(0)), text)
     text = re.sub(r"^\s*#{1,6}\s*", "", text, flags=re.MULTILINE)
-    text = text.replace("#", " ")
-    text = re.sub(r"[*_`~]", "", text)
-    return re.sub(r"[ \t]+", " ", text).strip()
+    text = text.replace("&", " and ").replace("%", " percent ").replace("@", " at ")
+    text = re.sub(r"[#*_`~|<>\\]", " ", text)
+    text = re.sub(r"[ \t]+", " ", text)
+    return re.sub(r" *\n *", "\n", text).strip()
+
+
+speech_text = output_text
 
 
 def speak(text: str, *, voice: str, speed: int, pitch: int) -> None:
@@ -291,7 +342,7 @@ def main(argv=None) -> int:
             data = normalize_snapshot(collect(args.lat, args.lon, timeout=args.timeout, finnhub_key=os.getenv("FINNHUB_API_KEY"), reuters_rss=os.getenv("BRIEF_REUTERS_RSS")))
         if args.snapshot_out:
             atomic_write(Path(args.snapshot_out), json.dumps(data, indent=2, sort_keys=True))
-        briefing = synthesize(build_prompt(data, args.location), args.synth_command)
+        briefing = output_text(synthesize(build_prompt(data, args.location), args.synth_command))
         atomic_write(Path(args.output), briefing)
         print(str(Path(args.output).expanduser()))
         if not args.no_speech:
