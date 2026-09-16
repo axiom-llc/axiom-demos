@@ -16,14 +16,14 @@ class CommandExecutor:
         prefix = "DYNAMIC" if is_dynamic else "STATIC"
         log_term = f"'{term}'" if term else ""
         print(f"==> EXECUTING {prefix}: {command} {log_term}", file=sys.stderr)
-        subprocess.run(command, shell=True)
+        subprocess.Popen(command, shell=True)
 
     def _run_command(self, cmd: list, is_dynamic: bool = False, term: str = ""):
         prefix = "DYNAMIC" if is_dynamic else "STATIC"
         log_term = f"'{term}'" if term else ""
         cmd_str = " ".join(cmd)
         print(f"==> EXECUTING {prefix}: {cmd_str} {log_term}".rstrip(), file=sys.stderr)
-        subprocess.run(cmd, shell=False)
+        subprocess.Popen(cmd, shell=False)
 
     def execute(self, text: str) -> None:
         """The main execution logic for a piece of transcribed text."""

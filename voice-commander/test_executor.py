@@ -22,14 +22,14 @@ class TestCommandExecutorSecurity(unittest.TestCase):
             "&& touch /tmp/voice-commander-pwned",
         ]
 
-    @patch("executor.subprocess.run")
-    def test_project_start_prevents_shell_injection(self, mock_run):
+    @patch("executor.subprocess.Popen")
+    def test_project_start_prevents_shell_injection(self, mock_popen):
         for payload in self.payloads:
-            mock_run.reset_mock()
+            mock_popen.reset_mock()
             self.executor.execute(f"project start {payload}")
 
-            mock_run.assert_called_once()
-            args, kwargs = mock_run.call_args
+            mock_popen.assert_called_once()
+            args, kwargs = mock_popen.call_args
 
             # Verify shell=False
             self.assertFalse(
@@ -45,13 +45,15 @@ class TestCommandExecutorSecurity(unittest.TestCase):
                 ["/home/u/.local/bin/project_manager.sh", "start", payload],
             )
 
+    @patch("executor.subprocess.Popen")
     @patch("executor.subprocess.run")
-    def test_define_this_prevents_shell_injection(self, mock_run):
+    def test_define_this_prevents_shell_injection(self, mock_run, mock_popen):
         mock_curl_res = MagicMock()
         mock_curl_res.stdout = " 1. First definition.\n 2. Second definition.\n"
 
         for payload in self.payloads:
             mock_run.reset_mock()
+            mock_popen.reset_mock()
             mock_run.return_value = mock_curl_res
 
             # Enter definition state
@@ -62,12 +64,10 @@ class TestCommandExecutorSecurity(unittest.TestCase):
             self.executor.execute(payload)
             self.assertFalse(self.executor.awaiting_definition_term)
 
-            # Exactly two subprocess calls: curl and notify-send
-            self.assertEqual(mock_run.call_count, 2)
-            curl_call, notify_call = mock_run.call_args_list
-
-            # Check curl invocation
-            curl_args, curl_kwargs = curl_call
+            # curl is synchronous; notification launch is non-blocking.
+            mock_run.assert_called_once()
+            mock_popen.assert_called_once()
+            curl_args, curl_kwargs = mock_run.call_args
             self.assertFalse(
                 curl_kwargs.get("shell", False),
                 f"curl for {payload} was executed with shell=True",
@@ -76,7 +76,7 @@ class TestCommandExecutorSecurity(unittest.TestCase):
             self.assertEqual(curl_args[0], ["curl", "-s", f"dict.org/d:{payload}"])
 
             # Check notify-send invocation
-            notify_args, notify_kwargs = notify_call
+            notify_args, notify_kwargs = mock_popen.call_args
             self.assertFalse(
                 notify_kwargs.get("shell", False),
                 f"notify-send for {payload} was executed with shell=True",
@@ -91,20 +91,20 @@ class TestCommandExecutorSecurity(unittest.TestCase):
                 ],
             )
 
-    @patch("executor.subprocess.run")
-    def test_static_commands_preserve_shell_behavior(self, mock_run):
+    @patch("executor.subprocess.Popen")
+    def test_static_commands_preserve_shell_behavior(self, mock_popen):
         self.executor.execute("wallpaper")
-        mock_run.assert_called_once_with(
+        mock_popen.assert_called_once_with(
             "feh --bg-fill --randomize ~/Pictures/wallpapers/*",
             shell=True,
         )
 
-    @patch("executor.subprocess.run")
+    @patch("executor.subprocess.Popen")
     def test_unknown_transcript_invokes_no_subprocess(self, mock_run):
         self.executor.execute("some unknown transcript phrase")
         mock_run.assert_not_called()
 
-    @patch("executor.subprocess.run")
+    @patch("executor.subprocess.Popen")
     def test_static_command_with_prefix_or_suffix_does_not_invoke(self, mock_run):
         variations = [
             "please wallpaper",
@@ -118,7 +118,7 @@ class TestCommandExecutorSecurity(unittest.TestCase):
             self.executor.execute(phrase)
             mock_run.assert_not_called()
 
-    @patch("executor.subprocess.run")
+    @patch("executor.subprocess.Popen")
     def test_transcript_cannot_alter_append_or_interpolate_static_command(self, mock_run):
         injection_attempts = [
             "wallpaper && rm -rf /",
