@@ -1,42 +1,49 @@
 # News Briefing
 
-A bounded, auditable morning-briefing pipeline. It acquires public weather, news, and market data, normalizes it into a structured snapshot, asks a configured synthesizer to produce spoken prose, writes the result atomically, and can optionally read it aloud.
+A bounded, auditable morning-briefing pipeline. It acquires public weather, news, and market data, normalizes it into a structured snapshot, synthesizes concise spoken prose with Gemini, writes the result atomically, and can optionally read it aloud.
 
 ## Design
 
 - **Acquisition is separate from synthesis.** Source text is normalized before it reaches the model.
 - **External content is untrusted data.** The synthesis prompt forbids following instructions embedded in feeds or API responses.
 - **Network access is bounded.** Requests use explicit timeouts and response-size limits.
-- **Partial source failures are non-fatal.** Failures are recorded in `errors`; the model is told not to invent missing facts.
+- **Partial source failures are non-fatal.** Failures are recorded in `errors`; unavailable data is distinguished from confirmed absence.
 - **Market data is optional.** Finnhub is used only when `FINNHUB_API_KEY` is present. CoinGecko remains best-effort.
-- **Reuters is optional/configurable.** Set `BRIEF_REUTERS_RSS` only to a currently valid RSS endpoint; no stale endpoint is hardcoded.
+- **Reuters discovery is optional/configurable.** `BRIEF_REUTERS_RSS` may point to an HTTPS RSS endpoint; the example uses a Google News query constrained to Reuters URLs and is not an official Reuters feed.
 - **Speech is optional.** Use `--no-speech` for text-only operation.
 - **Snapshots support replay.** `--snapshot-out` records normalized inputs; `--snapshot-in` enables deterministic offline regeneration and testing.
 
 ## Requirements
 
-Required: Python 3.11+ and a synthesis command that accepts the prompt as its final argument and prints the briefing to stdout.
+Required:
+
+- Python 3.11+;
+- `google-genai`;
+- `GEMINI_API_KEY`.
+
+The bundled `gemini-synth.py` adapter is the default synthesizer and uses `gemini-3.8-flash`. Override the model with `BRIEF_GEMINI_MODEL`, or replace the synthesis backend with `BRIEF_SYNTH_CMD` / `--synth-command`. A replacement command must accept the prompt as its final argument, print only the generated briefing to stdout, and return non-zero on failure.
+
+Gemini API quotas and pricing are controlled by the Google API project/account, not this program. `gemini-3.8-flash` can be used under Google's Free Tier subject to its current eligibility and quotas; this project does not enable billing or guarantee that a particular API project is non-billable. Verify the API project's tier before relying on zero-cost operation.
 
 Optional:
 
 - `espeak` and `aplay` for spoken output;
 - `FINNHUB_API_KEY` for SPY/QQQ/VIXY quotes.
 
-The default synthesizer command is `apex` for compatibility with the original project. Override it with `BRIEF_SYNTH_CMD` or `--synth-command`. The command must return only the generated briefing on stdout and a non-zero exit status on failure.
-
 ## Configuration
 
 ```bash
-export BRIEF_LAT="40.7128"
-export BRIEF_LON="-74.0060"
-export BRIEF_LOCATION="New York, NY"
-export BRIEF_SYNTH_CMD="apex"
+export GEMINI_API_KEY="..."
+export BRIEF_LAT="40.268368"
+export BRIEF_LON="-74.505238"
+export BRIEF_LOCATION="East Windsor, NJ"
 # Optional:
-export FINNHUB_API_KEY="..."
-export BRIEF_REUTERS_RSS="https://example.invalid/current-feed.xml"
+# export BRIEF_GEMINI_MODEL="gemini-3.8-flash"
+# export FINNHUB_API_KEY=""
+export BRIEF_REUTERS_RSS="https://news.google.com/rss/search?q=site%3Areuters.com%20when%3A1d&hl=en-US&gl=US&ceid=US%3Aen"
 ```
 
-No personal location is built into the project. Coordinates are required for live acquisition.
+No personal location or API credential is built into the project. Coordinates are required for live acquisition.
 
 ## Usage
 
@@ -62,12 +69,12 @@ This tool summarizes public network content. Feed/API text can contain hostile o
 
 ## Validation
 
-All automated validation is offline:
+Automated validation is offline:
 
 ```bash
 python3 -m unittest -v tests.test_news_briefing
-python3 -m py_compile news_briefing.py
+python3 -m py_compile news_briefing.py gemini-synth.py
 bash -n news-briefing.sh
 ```
 
-The test suite covers RSS/JSON normalization, prompt-injection boundaries, partial source failure, synthesis failure, atomic output, required configuration, and end-to-end snapshot replay.
+The test suite covers RSS/JSON normalization, prompt-injection boundaries, partial source failure, synthesis failure, atomic output, required configuration, the default Gemini adapter boundary, and end-to-end snapshot replay.

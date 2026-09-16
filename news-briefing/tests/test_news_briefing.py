@@ -116,6 +116,11 @@ class CliTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(out.read_text(), "Generated briefing\n")
 
+    def test_default_synthesizer_is_bundled_gemini_adapter(self):
+        with patch.dict(os.environ, {}, clear=True):
+            args = nb.parser().parse_args([])
+        self.assertEqual(Path(args.synth_command), ROOT / "gemini-synth.py")
+
     def test_live_mode_requires_coordinates(self):
         env = {k: v for k, v in os.environ.items() if k not in {"BRIEF_LAT", "BRIEF_LON"}}
         result = subprocess.run([sys.executable, str(ROOT / "news_briefing.py"), "--no-speech"], capture_output=True, text=True, env=env)

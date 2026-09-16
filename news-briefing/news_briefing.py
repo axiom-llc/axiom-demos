@@ -225,7 +225,7 @@ def parser():
     p.add_argument("--output", default=os.getenv("BRIEF_OUTPUT", "~/brief.txt"))
     p.add_argument("--snapshot-in", help="read normalized source JSON instead of using the network")
     p.add_argument("--snapshot-out", help="write normalized source JSON for audit/replay")
-    p.add_argument("--synth-command", default=os.getenv("BRIEF_SYNTH_CMD", "apex"))
+    p.add_argument("--synth-command", default=os.getenv("BRIEF_SYNTH_CMD", str(Path(__file__).with_name("gemini-synth.py"))))
     p.add_argument("--timeout", type=float, default=float(os.getenv("BRIEF_HTTP_TIMEOUT", DEFAULT_TIMEOUT)))
     p.add_argument("--no-speech", action="store_true")
     return p
