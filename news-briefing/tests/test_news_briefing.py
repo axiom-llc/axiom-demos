@@ -65,6 +65,10 @@ class ParserTests(unittest.TestCase):
         self.assertIn("short, strong introduction", prompt)
         self.assertIn("CONCLUSION", prompt)
         self.assertIn("This concludes the AXIOM Executive Intelligence Brief.", prompt)
+        self.assertIn("for an AI Systems Engineer", prompt)
+        self.assertIn("models, agents, infrastructure and compute, developer tooling, security, reliability and evaluation", prompt)
+        self.assertIn("900-1300 words", prompt)
+        self.assertIn("preserve proportionate coverage of material non-AI developments", prompt)
 
 
 class IOTests(unittest.TestCase):
@@ -72,7 +76,7 @@ class IOTests(unittest.TestCase):
         text = "### AI & US WEATHER\n**Now:** 73°F, wind 7 mph, pressure 1027 hPa; BTC was $75,772. #Update"
         self.assertEqual(
             nb.output_text(text),
-            "artificial intelligence and United States WEATHER\nNow: 73 Fahrenheit, wind 7 miles per hour, pressure 1027 hectopascal; Bitcoin was seventy-five thousand, seven hundred seventy-two dollars. Update",
+            "artificial intelligence and United States WEATHER\nNow: 73 Fahrenheit, wind 7 miles per hour, pressure 1027 hectopascals; Bitcoin was seventy-five thousand, seven hundred seventy-two dollars. Update",
         )
         self.assertEqual(nb.output_text("UK ETF IPO: $290 million; QQQ."), "United Kingdom exchange-traded fund initial public offering: two hundred ninety million dollars; Q Q Q.")
         self.assertEqual(nb.output_text("U.S. Fed vs. UK in Sept."), "United States Federal Reserve versus United Kingdom in September")
@@ -95,7 +99,15 @@ class IOTests(unittest.TestCase):
         aplay.returncode = 0
         popen.side_effect = [espeak, aplay]
         nb.speak("## US WEATHER: 70F, wind 5 mph, 1015 hPa", voice="en", speed=149, pitch=38)
-        self.assertEqual(espeak.stdin.getvalue(), b"United States WEATHER: 70 Fahrenheit, wind 5 miles per hour, 1015 hectopascal")
+        self.assertEqual(espeak.stdin.getvalue(), b"United States WEATHER: 70 Fahrenheit, wind 5 miles per hour, 1015 hectopascals")
+
+    def test_speech_text_inserts_section_pauses_without_changing_written_text(self):
+        text = "AXIOM brief.\nEXECUTIVE READOUT\nOne.\nWEATHER\nTwo.\nartificial intelligence and FRONTIER TECHNOLOGY\nThree.\nMARKETS and ECONOMY\nFour.\nWORLD\nFive.\nCONCLUSION\nDone."
+        written = nb.output_text(text)
+        spoken = nb.speech_text(written)
+        self.assertNotIn("[[slnc", written)
+        self.assertEqual(spoken.count("[[slnc 900]]"), 5)
+        self.assertIn("[[slnc 900]]\nWEATHER", spoken)
 
     def test_atomic_write_replaces_and_leaves_no_temp(self):
         with tempfile.TemporaryDirectory() as tmp:
