@@ -64,6 +64,32 @@ class ParserTests(unittest.TestCase):
 
 
 class IOTests(unittest.TestCase):
+    def test_speech_text_normalizes_symbols_and_units(self):
+        text = "### WEATHER\n**Now:** 73°F, wind 7 mph. #Update `clear` ~steady~."
+        self.assertEqual(
+            nb.speech_text(text),
+            "WEATHER\nNow: 73 Fahrenheit, wind 7 miles per hour. Update clear steady.",
+        )
+        self.assertNotIn("#", nb.speech_text("# Heading # tag"))
+
+    @patch("news_briefing.subprocess.Popen")
+    def test_speak_sends_only_normalized_text_to_espeak(self, popen):
+        from io import BytesIO
+        class CaptureBytesIO(BytesIO):
+            def close(self):
+                pass
+        espeak = unittest.mock.MagicMock()
+        espeak.stdin = CaptureBytesIO()
+        espeak.stdout = BytesIO()
+        espeak.stderr = BytesIO()
+        espeak.returncode = 0
+        aplay = unittest.mock.MagicMock()
+        aplay.communicate.return_value = (b"", b"")
+        aplay.returncode = 0
+        popen.side_effect = [espeak, aplay]
+        nb.speak("## WEATHER: 70F, wind 5 mph", voice="en", speed=149, pitch=38)
+        self.assertEqual(espeak.stdin.getvalue(), b"WEATHER: 70 Fahrenheit, wind 5 miles per hour")
+
     def test_atomic_write_replaces_and_leaves_no_temp(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "brief.txt"

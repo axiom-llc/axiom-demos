@@ -5,6 +5,7 @@ import argparse
 import html
 import json
 import os
+import re
 from pathlib import Path
 import shlex
 import subprocess
@@ -233,7 +234,17 @@ def atomic_write(path: Path, text: str) -> None:
         raise
 
 
+def speech_text(text: str) -> str:
+    text = re.sub(r"(?<=\d)\s*°?F\b", " Fahrenheit", text)
+    text = re.sub(r"\bmph\b", "miles per hour", text, flags=re.IGNORECASE)
+    text = re.sub(r"^\s*#{1,6}\s*", "", text, flags=re.MULTILINE)
+    text = text.replace("#", " ")
+    text = re.sub(r"[*_`~]", "", text)
+    return re.sub(r"[ \t]+", " ", text).strip()
+
+
 def speak(text: str, *, voice: str, speed: int, pitch: int) -> None:
+    text = speech_text(text)
     try:
         espeak = subprocess.Popen(
             ["espeak", "-v", voice, "-s", str(speed), "-p", str(pitch), "--stdin", "--stdout"],
