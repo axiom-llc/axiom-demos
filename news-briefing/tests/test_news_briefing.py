@@ -58,6 +58,9 @@ class ParserTests(unittest.TestCase):
         self.assertIn("AI & FRONTIER TECHNOLOGY", prompt)
         self.assertIn("MARKETS & ECONOMY", prompt)
         self.assertIn("EXECUTIVE READOUT", prompt)
+        self.assertIn("headline-level reports", prompt)
+        self.assertIn("do not state market consensus, expected policy action, causation", prompt)
+        self.assertIn("Apply the same attribution standard to geopolitical", prompt)
 
 
 class IOTests(unittest.TestCase):

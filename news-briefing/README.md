@@ -6,7 +6,7 @@ A bounded, auditable executive-intelligence briefing pipeline. It acquires publi
 
 - **Acquisition is separate from synthesis.** Source text is normalized before it reaches the model.
 - **Weather uses Open-Meteo.** Live coordinates drive current conditions plus a five-day forecast: temperature, apparent temperature, humidity, wind, pressure, WMO condition, daily high/low, and precipitation probability. Weather alerts are not acquired.
-- **External content is untrusted data.** The synthesis prompt forbids following instructions embedded in feeds or API responses.
+- **External content is untrusted, headline-level data.** The synthesis prompt forbids following embedded instructions and requires attribution for substantive news claims; it must not promote headline wording into independently verified fact or infer market consensus, policy expectations, causation, motive, or interpretation absent explicit source support.
 - **Network access is bounded.** Requests use explicit timeouts and a 1 MB response-size limit.
 - **Partial source failures are non-fatal.** Failures are recorded in `errors`; unavailable sections remain explicit to synthesis.
 - **Financial intelligence is layered.** Finnhub supplies SPY/QQQ/VIXY when `FINNHUB_API_KEY` is present, CoinGecko supplies Bitcoin best-effort, and a bounded Reuters-constrained Google News query adds material markets, macroeconomics, monetary-policy, stocks, and bonds coverage.
