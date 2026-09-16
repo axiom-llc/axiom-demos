@@ -8,18 +8,28 @@
   "commands": {
     "static": {
       "discord": "chromium https://discord.com/channels/@me",
-      "task manager": "geany ~/Documents/tasks.txt",
-      "wallpaper": "feh --bg-fill --randomize ~/Pictures/wallpapers/*",
-      "play music": "alacritty -e mpv --no-audio-display --shuffle --loop-playlist=inf ~/Music/songs/",
+      "task manager": "gnumeric ~/operations/operations.gnumeric",
+      "wallpaper": "feh --bg-fill --randomize ~/media/wallpaper/*",
+      "play music": "alacritty -e mpv --no-audio-display --shuffle --loop-playlist=inf ~/media/music/",
       "web browser": "chromium",
-      "weather forecast": "poetry run weather-cli",
       "system status": "alacritty -e htop",
-      "lock screen": "slock",
+      "audio controls": "pavucontrol",
+      "bluetooth": "blueman-manager",
       "show files": "pcmanfm",
+      "development terminal": "alacritty --working-directory ~/code/apps/axiom-llc",
+      "experimental terminal": "alacritty --working-directory ~/code/experimental",
+      "code assistant": "alacritty --working-directory ~/code/apps/axiom-llc -e codex",
+      "axiom director": "alacritty --working-directory ~/code/apps/axiom-llc/axiom-director",
+      "axiom apex": "alacritty --working-directory ~/code/apps/axiom-llc/axiom-apex",
+      "axiom ason": "alacritty --working-directory ~/code/apps/axiom-llc/axiom-ason",
+      "axiom rag": "alacritty --working-directory ~/code/apps/axiom-llc/axiom-rag",
+      "axiom research": "alacritty --working-directory ~/code/apps/axiom-llc/axiom-research",
+      "axiom harness": "alacritty --working-directory ~/code/apps/axiom-llc/axiom-harness",
+      "axiom infrastructure": "alacritty --working-directory ~/code/apps/axiom-llc/axiom-infra",
+      "axiom operations": "alacritty --working-directory ~/code/apps/axiom-llc/axiom-ops",
+      "lock screen": "slock",
       "stop listening": "exit"
     },
-    "dynamic": {
-      "project_manager_path": "~/.local/bin/project_manager.sh"
-    }
+    "dynamic": {}
   }
 }
