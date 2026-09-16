@@ -77,8 +77,7 @@ class ParserTests(unittest.TestCase):
         self.assertIn("This concludes the AXIOM Executive Intelligence Brief.", prompt)
         self.assertIn("for an AI Systems Engineer", prompt)
         self.assertIn("models, agents, infrastructure and compute, developer tooling, security, reliability and evaluation", prompt)
-        self.assertIn("Target 1,600-1,800 words", prompt)
-        self.assertIn("must not exceed 2,000 words", prompt)
+        self.assertIn("Do not target, impose, or mention a briefing word or character limit", prompt)
         self.assertIn("preserve proportionate coverage of material non-AI developments", prompt)
         self.assertIn("AXIOM DEVELOPMENT", prompt)
         self.assertIn("github.com/axiom-llc", prompt)
@@ -187,19 +186,6 @@ class CliTests(unittest.TestCase):
             ], capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(out.read_text(), "artificial intelligence: 70 degrees at 5 miles per hour, one dollar.\n")
-
-    def test_cli_rejects_briefing_over_2000_words(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            tmp = Path(tmp)
-            snap = tmp / "snapshot.json"
-            out = tmp / "brief.txt"
-            synth = tmp / "synth.py"
-            snap.write_text(json.dumps({"weather": [], "markets": [], "ai": [], "world": [], "axiom": [], "errors": []}))
-            synth.write_text("print('word ' * 2001)\n")
-            result = subprocess.run([sys.executable, str(ROOT / "news_briefing.py"), "--snapshot-in", str(snap), "--output", str(out), "--synth-command", f"{sys.executable} {synth}", "--no-speech"], capture_output=True, text=True)
-            self.assertNotEqual(result.returncode, 0)
-            self.assertIn("exceeded 2000 words", result.stderr)
-            self.assertFalse(out.exists())
 
     def test_default_synthesizer_is_bundled_gemini_adapter(self):
         with patch.dict(os.environ, {}, clear=True):
