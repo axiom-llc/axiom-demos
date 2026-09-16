@@ -37,6 +37,16 @@ class ParserTests(unittest.TestCase):
         self.assertEqual(nb._quote({"c": 10, "dp": 1.5}), "10 (1.5%)")
         self.assertEqual(nb._btc({"bitcoin": {"usd": 123}}), "$123")
 
+    def test_github_activity_normalization(self):
+        rows = nb._github_events([{"type": "PushEvent", "created_at": "2026-09-16T12:00:00Z", "repo": {"name": "axiom-llc/axiom-apex"}, "payload": {"ref": "refs/heads/main", "commits": [{"message": "harden runtime"}]}}])
+        self.assertEqual(rows, ["2026-09-16T12:00:00Z axiom-llc/axiom-apex refs/heads/main: harden runtime"])
+
+    def test_github_org_normalization(self):
+        rows = nb._github_org([{"name": "axiom-apex", "description": "runtime", "default_branch": "main", "pushed_at": "2026-09-16T12:00:00Z", "updated_at": "2026-09-16T12:01:00Z", "archived": False, "language": "Python"}])
+        self.assertEqual(len(rows), 1)
+        self.assertIn("axiom-apex: runtime", rows[0])
+        self.assertIn("pushed 2026-09-16", rows[0])
+
     def test_snapshot_validation_and_bounds(self):
         data = nb.normalize_snapshot({"ai": ["x" * 1000] * 30})
         self.assertEqual(len(data["ai"]), 20)
@@ -67,8 +77,12 @@ class ParserTests(unittest.TestCase):
         self.assertIn("This concludes the AXIOM Executive Intelligence Brief.", prompt)
         self.assertIn("for an AI Systems Engineer", prompt)
         self.assertIn("models, agents, infrastructure and compute, developer tooling, security, reliability and evaluation", prompt)
-        self.assertIn("900-1300 words", prompt)
+        self.assertIn("must not exceed 1,000 words", prompt)
         self.assertIn("preserve proportionate coverage of material non-AI developments", prompt)
+        self.assertIn("AXIOM DEVELOPMENT", prompt)
+        self.assertIn("github.com/axiom-llc", prompt)
+        self.assertIn("never write or restate \"Fahrenheit.\"", prompt)
+        self.assertIn("Never emit the malformed word \"Reserveeral\"", prompt)
 
 
 class IOTests(unittest.TestCase):
@@ -76,10 +90,12 @@ class IOTests(unittest.TestCase):
         text = "### AI & US WEATHER\n**Now:** 73°F, wind 7 mph, pressure 1027 hPa; BTC was $75,772. #Update"
         self.assertEqual(
             nb.output_text(text),
-            "artificial intelligence and United States WEATHER\nNow: 73 Fahrenheit, wind 7 miles per hour, pressure 1027 hectopascals; Bitcoin was seventy-five thousand, seven hundred seventy-two dollars. Update",
+            "artificial intelligence and United States WEATHER\nNow: 73 degrees, wind 7 miles per hour, pressure 1027 hectopascals; Bitcoin was seventy-five thousand, seven hundred seventy-two dollars. Update",
         )
         self.assertEqual(nb.output_text("UK ETF IPO: $290 million; QQQ."), "United Kingdom exchange-traded fund initial public offering: two hundred ninety million dollars; Q Q Q.")
         self.assertEqual(nb.output_text("U.S. Fed vs. UK in Sept."), "United States Federal Reserve versus United Kingdom in September")
+        self.assertEqual(nb.output_text("70F, 71°F, 72 Fahrenheit, 73 degrees Fahrenheit"), "70 degrees, 71 degrees, 72 degrees, 73 degrees")
+        self.assertEqual(nb.output_text("Federal Reserveeral decision"), "Federal Reserve decision")
         for symbol in "#*_`~|<>\\":
             self.assertNotIn(symbol, nb.output_text(f"word {symbol} word"))
 
@@ -99,14 +115,14 @@ class IOTests(unittest.TestCase):
         aplay.returncode = 0
         popen.side_effect = [espeak, aplay]
         nb.speak("## US WEATHER: 70F, wind 5 mph, 1015 hPa", voice="en", speed=149, pitch=38)
-        self.assertEqual(espeak.stdin.getvalue(), b"United States WEATHER: 70 Fahrenheit, wind 5 miles per hour, 1015 hectopascals")
+        self.assertEqual(espeak.stdin.getvalue(), b"United States WEATHER: 70 degrees, wind 5 miles per hour, 1015 hectopascals")
 
     def test_speech_text_inserts_section_pauses_without_changing_written_text(self):
-        text = "AXIOM brief.\nEXECUTIVE READOUT\nOne.\nWEATHER\nTwo.\nartificial intelligence and FRONTIER TECHNOLOGY\nThree.\nMARKETS and ECONOMY\nFour.\nWORLD\nFive.\nCONCLUSION\nDone."
+        text = "AXIOM brief.\nEXECUTIVE READOUT\nOne.\nWEATHER\nTwo.\nartificial intelligence and FRONTIER TECHNOLOGY\nThree.\nAXIOM DEVELOPMENT\nFour.\nMARKETS and ECONOMY\nFive.\nWORLD\nSix.\nCONCLUSION\nDone."
         written = nb.output_text(text)
         spoken = nb.speech_text(written)
         self.assertNotIn("[[slnc", written)
-        self.assertEqual(spoken.count("[[slnc 900]]"), 5)
+        self.assertEqual(spoken.count("[[slnc 900]]"), 6)
         self.assertIn("[[slnc 900]]\nWEATHER", spoken)
 
     def test_atomic_write_replaces_and_leaves_no_temp(self):
@@ -169,7 +185,20 @@ class CliTests(unittest.TestCase):
                 "--synth-command", f"{sys.executable} {synth}", "--no-speech",
             ], capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertEqual(out.read_text(), "artificial intelligence: 70 Fahrenheit at 5 miles per hour, one dollar.\n")
+            self.assertEqual(out.read_text(), "artificial intelligence: 70 degrees at 5 miles per hour, one dollar.\n")
+
+    def test_cli_rejects_briefing_over_1000_words(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            snap = tmp / "snapshot.json"
+            out = tmp / "brief.txt"
+            synth = tmp / "synth.py"
+            snap.write_text(json.dumps({"weather": [], "markets": [], "ai": [], "world": [], "axiom": [], "errors": []}))
+            synth.write_text("print('word ' * 1001)\n")
+            result = subprocess.run([sys.executable, str(ROOT / "news_briefing.py"), "--snapshot-in", str(snap), "--output", str(out), "--synth-command", f"{sys.executable} {synth}", "--no-speech"], capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("exceeded 1000 words", result.stderr)
+            self.assertFalse(out.exists())
 
     def test_default_synthesizer_is_bundled_gemini_adapter(self):
         with patch.dict(os.environ, {}, clear=True):

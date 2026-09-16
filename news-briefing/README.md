@@ -11,8 +11,9 @@ A bounded, auditable executive-intelligence briefing pipeline. It acquires publi
 - **Partial source failures are non-fatal.** Failures are recorded in `errors`; unavailable sections remain explicit to synthesis.
 - **Financial intelligence is layered.** Finnhub supplies SPY/QQQ/VIXY when `FINNHUB_API_KEY` is present, CoinGecko supplies Bitcoin best-effort, and a bounded Reuters-constrained Google News query adds material markets, macroeconomics, monetary-policy, stocks, and bonds coverage.
 - **AI has a dedicated source lane.** A bounded Reuters-constrained Google News query covers material AI, robotics, chips/semiconductors, and space developments instead of general developer-news feeds.
+- **AXIOM development has a dedicated verified lane.** Current public `github.com/axiom-llc` repository metadata and organization push activity feed a bounded section covering observable project status, architecture, development activity, material changes, risks, gaps, and implications without inferring unavailable implementation details.
 - **World news stays bounded.** BBC supplies broad world coverage; optional `BRIEF_REUTERS_RSS` adds operator-selected Reuters discovery. Reuters-constrained Google News queries are discovery mechanisms, not official Reuters feeds.
-- **Speech is enabled by default.** `espeak` generates WAV audio and `aplay` plays it; use `--no-speech` for text-only operation.
+- **Speech is enabled by default.** `espeak` generates WAV audio and `aplay` plays it; use `--no-speech` for text-only operation. Spoken sections have a natural pause between them. Weather temperatures are Fahrenheit by definition and are rendered as numeric values followed by `degrees`; pressure is rendered as `hectopascals`.
 - **Snapshots support replay.** `--snapshot-out` records normalized inputs; `--snapshot-in` replays saved acquisition data without source-network calls; synthesis still uses the configured backend.
 
 ## Requirements
