@@ -77,6 +77,7 @@ class ParserTests(unittest.TestCase):
         self.assertIn("This concludes the AXIOM Executive Intelligence Brief.", prompt)
         self.assertIn("for an AI Systems Engineer", prompt)
         self.assertIn("models, agents, infrastructure and compute, developer tooling, security, reliability and evaluation", prompt)
+        self.assertIn("Target 800-900 words", prompt)
         self.assertIn("must not exceed 1,000 words", prompt)
         self.assertIn("preserve proportionate coverage of material non-AI developments", prompt)
         self.assertIn("AXIOM DEVELOPMENT", prompt)
