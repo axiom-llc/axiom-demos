@@ -61,6 +61,10 @@ class ParserTests(unittest.TestCase):
         self.assertIn("headline-level reports", prompt)
         self.assertIn("do not state market consensus, expected policy action, causation", prompt)
         self.assertIn("Apply the same attribution standard to geopolitical", prompt)
+        self.assertIn("AXIOM Executive Intelligence Brief", prompt)
+        self.assertIn("short, strong introduction", prompt)
+        self.assertIn("CONCLUSION", prompt)
+        self.assertIn("This concludes the AXIOM Executive Intelligence Brief.", prompt)
 
 
 class IOTests(unittest.TestCase):
