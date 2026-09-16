@@ -18,7 +18,8 @@ def main() -> int:
         return 2
     model = os.getenv("BRIEF_GEMINI_MODEL", DEFAULT_MODEL)
     try:
-        response = genai.Client(api_key=api_key).models.generate_content(
+        client = genai.Client(api_key=api_key)
+        response = client.models.generate_content(
             model=model,
             contents=sys.argv[1],
         )
