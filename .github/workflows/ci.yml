@@ -44,6 +44,11 @@ jobs:
           cd voice-commander
           python -m unittest -v test_config.py test_executor.py test_transcriber.py
 
+      - name: Run News Briefing tests
+        run: |
+          cd news-briefing
+          make test
+
   docker-build:
     runs-on: ubuntu-latest
     steps:
