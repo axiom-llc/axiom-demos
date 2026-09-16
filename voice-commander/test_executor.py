@@ -133,6 +133,18 @@ class TestCommandExecutorSecurity(unittest.TestCase):
             self.executor.execute(phrase)
             mock_run.assert_not_called()
 
+    @patch("executor.subprocess.Popen")
+    def test_argv_command_never_uses_shell(self, mock_popen):
+        self.executor.argv_commands={"director health":["python","/repo/director_voice.py","health"]}
+        self.executor.execute("director health")
+        mock_popen.assert_called_once_with(["python","/repo/director_voice.py","health"],shell=False)
+
+    @patch("executor.subprocess.Popen")
+    def test_argv_command_requires_exact_phrase(self, mock_popen):
+        self.executor.argv_commands={"director health":["python","/repo/director_voice.py","health"]}
+        self.executor.execute("director health now")
+        mock_popen.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()

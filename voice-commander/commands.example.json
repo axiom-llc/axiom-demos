@@ -30,6 +30,78 @@
       "lock screen": "slock",
       "stop listening": "exit"
     },
-    "dynamic": {}
+    "dynamic": {},
+    "argv": {
+      "director status": [
+        "alacritty",
+        "--hold",
+        "--working-directory",
+        "/home/u/code/apps/axiom-llc/axiom-director",
+        "-e",
+        "python",
+        "/home/u/code/apps/axiom-llc/axiom-director/director_voice.py",
+        "status"
+      ],
+      "director health": [
+        "alacritty",
+        "--hold",
+        "--working-directory",
+        "/home/u/code/apps/axiom-llc/axiom-director",
+        "-e",
+        "python",
+        "/home/u/code/apps/axiom-llc/axiom-director/director_voice.py",
+        "health"
+      ],
+      "show approvals": [
+        "alacritty",
+        "--hold",
+        "--working-directory",
+        "/home/u/code/apps/axiom-llc/axiom-director",
+        "-e",
+        "python",
+        "/home/u/code/apps/axiom-llc/axiom-director/director_voice.py",
+        "approvals"
+      ],
+      "show deadlines": [
+        "alacritty",
+        "--hold",
+        "--working-directory",
+        "/home/u/code/apps/axiom-llc/axiom-director",
+        "-e",
+        "python",
+        "/home/u/code/apps/axiom-llc/axiom-director/director_voice.py",
+        "deadlines"
+      ],
+      "show current opportunity": [
+        "alacritty",
+        "--hold",
+        "--working-directory",
+        "/home/u/code/apps/axiom-llc/axiom-director",
+        "-e",
+        "python",
+        "/home/u/code/apps/axiom-llc/axiom-director/director_voice.py",
+        "current"
+      ],
+      "validate director": [
+        "alacritty",
+        "--hold",
+        "--working-directory",
+        "/home/u/code/apps/axiom-llc/axiom-director",
+        "-e",
+        "python",
+        "/home/u/code/apps/axiom-llc/axiom-director/director_voice.py",
+        "validate"
+      ],
+      "director next context": [
+        "alacritty",
+        "--hold",
+        "--working-directory",
+        "/home/u/code/apps/axiom-llc/axiom-director",
+        "-e",
+        "python",
+        "/home/u/code/apps/axiom-llc/axiom-director/director_voice.py",
+        "next"
+      ]
+    }
   }
 }

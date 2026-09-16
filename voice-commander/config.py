@@ -50,6 +50,12 @@ def load_config(config_path: Path) -> Dict[str, Any]:
 
     # Expand tilde in paths for portability
     cfg["settings"]["model_path"] = str(Path(cfg["settings"]["model_path"]).expanduser())
+    argv_commands = cfg["commands"].get("argv", {})
+    if not isinstance(argv_commands, dict):
+        raise ValueError("Config commands 'argv' must be an object.")
+    for phrase, argv in argv_commands.items():
+        if not isinstance(phrase, str) or not phrase or not isinstance(argv, list) or not argv or not all(isinstance(v, str) and v for v in argv):
+            raise ValueError("Each argv command must map a non-empty phrase to a non-empty string array.")
     dynamic = cfg["commands"].get("dynamic", {})
     if dynamic.get("project_manager_path"):
         path = dynamic["project_manager_path"]

@@ -65,3 +65,7 @@ python -m unittest -v test_config.py test_executor.py test_transcriber.py
 
 Portfolio CI runs those tests on Python 3.11 and 3.12. It does not test an
 actual microphone, installed desktop commands, the Vosk model, or dict.org.
+
+### Fixed-argv Director commands
+
+The example configuration includes bounded AXIOM Director inspection/validation phrases under `commands.argv`. These launch `director_voice.py` with a fixed argument vector and `shell=False`; transcript text cannot append arguments or shell syntax. Current examples cover Director status/next-action context, health, approvals, deadlines, Current Opportunity, and Director validation. They do not authorize commit/push, arbitrary shell execution, or consequential Director effects.

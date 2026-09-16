@@ -10,6 +10,7 @@ class CommandExecutor:
     def __init__(self, commands_config: dict):
         self.static_commands = commands_config.get("static", {})
         self.dynamic_config = commands_config.get("dynamic", {})
+        self.argv_commands = commands_config.get("argv", {})
         self.awaiting_definition_term = False
 
     def _run_shell_command(self, command: str, is_dynamic: bool = False, term: str = ""):
@@ -66,7 +67,12 @@ class CommandExecutor:
             self._run_shell_command(self.static_commands[text])
             return
 
-        # 3. Handle dynamic commands with patterns
+        # 3. Handle fixed argv commands without a shell
+        if text in self.argv_commands:
+            self._run_command(self.argv_commands[text])
+            return
+
+        # 4. Handle dynamic commands with patterns
         words = text.split()
         pm_path = self.dynamic_config.get("project_manager_path")
         if pm_path and len(words) > 2 and words[0] == "project" and words[1] == "start":
@@ -82,5 +88,5 @@ class CommandExecutor:
             self._run_shell_command(f"{pm_path} stop")
             return
 
-        # 4. If no match was found
+        # 5. If no match was found
         print("--> (No command matched)", file=sys.stderr)

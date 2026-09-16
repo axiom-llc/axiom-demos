@@ -76,6 +76,13 @@ class TestLoadConfigValidation(unittest.TestCase):
         ):
             config.load_config(path)
 
+    def test_argv_commands_require_nonempty_string_arrays(self):
+        data=self._valid_config(); data["commands"]["argv"]={"director health":["python","wrapper.py","health"]}
+        self.assertEqual(config.load_config(self._write_config(data))["commands"]["argv"]["director health"][0],"python")
+        data=self._valid_config(); data["commands"]["argv"]={"bad":"shell string"}
+        with self.assertRaisesRegex(ValueError,"argv"):
+            config.load_config(self._write_config(data))
+
 
 if __name__ == "__main__":
     unittest.main()
