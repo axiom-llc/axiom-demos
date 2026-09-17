@@ -15,3 +15,7 @@ Each wrapper delegates to the matching Research `execute.py`, runs against isola
 These are `VALIDATED_EXECUTABLE_DEMO` reproductions of synthetic local-file simulations, not production deployments. They do not establish regulatory compliance, independent assurance, real-world throughput, economic benefit, exactly-once external effects, or autonomous professional authority.
 
 Canonical evidence and publication boundaries: https://github.com/axiom-llc/axiom-research/tree/main/simulations
+
+## Accepted high-fidelity cycles
+
+Software development and logistics/supply-chain also have accepted three-day, six-work-item synthetic operational cycles covering carryover, dynamic arrivals, queue growth/drain, staffing/calendar changes, shared-resource contention, and balanced synthetic ledger cycles. Reproduce them through the thin wrappers in [`high-fidelity/`](high-fidelity/).
