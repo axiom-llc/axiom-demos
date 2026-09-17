@@ -6,6 +6,10 @@ boundary; these examples are not a shared runtime or deployment product.
 
 ## Included demonstrations
 
+### [organizational-simulations](./organizational-simulations/)
+
+Five thin wrappers for evidence-backed synthetic organizational simulations spanning robotics production, software development, specialty-care administration, SOC operations, and logistics/supply chain. Canonical models and retained evidence remain in `axiom-research`; fresh runs write outside the repository by default.
+
 ### [logistics-dashboard](./logistics-dashboard/)
 
 Prototype dashboard using sample shipment data, a public placeholder API,
