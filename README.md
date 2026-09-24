@@ -6,6 +6,10 @@ boundary; these examples are not a shared runtime or deployment product.
 
 ## Included demonstrations
 
+### [core-stack](./core-stack/)
+
+Canonical deterministic ASON → APEX → RAG reference. It delegates execution to `axiom-infra/core_stack.py`, verifies durable authorization/plan binding, exercises the RAG HTTP boundary without provider generation, and emits revision-bound evidence.
+
 ### [organizational-simulations](./organizational-simulations/)
 
 Five thin wrappers for evidence-backed synthetic organizational simulations spanning robotics production, software development, specialty-care administration, SOC operations, and logistics/supply chain. Canonical models and retained evidence remain in `axiom-research`; fresh runs write outside the repository by default.
