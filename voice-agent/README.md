@@ -15,7 +15,7 @@ source .venv/bin/activate
 python -m pip install -r requirements.txt
 ```
 
-Configure these values for the complete recording, AI, and forwarding flow.
+Configure these values for the complete recording, model-inference, and forwarding flow.
 `TWILIO_AUTH_TOKEN` is required for every webhook request:
 
 ```bash
@@ -48,7 +48,7 @@ Use the configured public origin exactly in Twilio and in
 
 The application accepts these POST routes: `/`, `/route`, `/nav`, `/ai`,
 `/ai_nav`, and `/voicemail`. The menu provides preset responses, recording-based
-AI interaction, forwarding to `CONTACT_PHONE`, and a voicemail fallback.
+Model interaction, forwarding to `CONTACT_PHONE`, and a voicemail fallback.
 
 ## Security and operating boundaries
 
