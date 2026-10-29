@@ -3,7 +3,7 @@
 A reusable toolkit for document conversion, structured text bundles and media inspection.
 
 - `md2html.py`: Markdown to standalone HTML with atomic output.
-- `converters/json_to_md.py`: structured JSON to Markdown tables.
+- `converters/json_to_md.py`: structured JSON to Markdown headings and lists.
 - `files/bundle-text.sh` and `files/split_text_bundle.py`: text bundle round trips.
 - `media/extract-frames.sh` and `media/check-metadata.sh`: FFmpeg/ExifTool inspection utilities.
 
@@ -14,4 +14,4 @@ python -m pip install -r requirements-md2html.txt
 python -m unittest discover -s tests -v
 ```
 
-Convert trusted Markdown documents; embedded HTML is preserved. Media commands use the corresponding FFmpeg/ExifTool executables. Input paths, destinations and operating settings are explicit command arguments. The original MIT license is retained; source file identities are recorded in [SOURCES.json](../SOURCES.json).
+Convert trusted Markdown documents; embedded HTML is preserved. Media commands use the corresponding FFmpeg/ExifTool executables. Media scripts scan the current directory; frame extraction creates a directory named for each input, and metadata inspection writes to standard output. The bundler recursively reads non-hidden files into `combined.txt`; the splitter accepts a bundle path and optional output directory. The original MIT license is retained; source file identities are recorded in [SOURCES.json](../SOURCES.json).

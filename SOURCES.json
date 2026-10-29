@@ -32,7 +32,8 @@
       "revision": "88353d4987ae36be40685186a29592bcbf3fd5dc",
       "path": "files/bundle-text.sh",
       "git_blob_sha": "a36b3aa2f4c6382eac190ae7a6b4db1b93359862",
-      "mode": "100755"
+      "mode": "100755",
+      "security_overlay": "Literal filename bundling and output-directory containment; original blob retained as provenance."
     },
     {
       "destination": "ops/files/split_text_bundle.py",
@@ -40,7 +41,8 @@
       "revision": "88353d4987ae36be40685186a29592bcbf3fd5dc",
       "path": "files/split_text_bundle.py",
       "git_blob_sha": "1cae1dab41f76de43cd3d22e7595342b38982637",
-      "mode": "100755"
+      "mode": "100755",
+      "security_overlay": "Literal filename bundling and output-directory containment; original blob retained as provenance."
     },
     {
       "destination": "ops/media/extract-frames.sh",

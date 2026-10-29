@@ -64,7 +64,9 @@ def split(source_path: Path, out_dir: Path) -> int:
         if body.startswith("\n"):
             body = body[1:]
 
-        target = out_dir / rel_path
+        target = (out_dir / rel_path).resolve()
+        if not target.is_relative_to(out_dir.resolve()):
+            raise ValueError(f"Bundle path escapes output directory: {rel_path}")
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(body + "\n", encoding="utf-8")
 
