@@ -14,6 +14,10 @@ Reusable document, structured-text and media utilities with native regression te
 
 [Source provenance](SOURCES.json) records the exact imported engineering files.
 
+### [blender](./blender/)
+
+Declarative 3D scene automation with JSON-controlled materials, lighting and camera configuration. Original source and reference render retained.
+
 ## Included demonstrations
 
 ### [core-stack](./core-stack/)

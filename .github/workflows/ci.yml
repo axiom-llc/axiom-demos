@@ -39,6 +39,12 @@ jobs:
           CONTACT_PHONE: "+15550000000"
         run: pytest tests/ -q --tb=short
 
+      - name: Validate Blender scene sources
+        run: |
+          python -m py_compile blender/scene.py
+          python -m json.tool blender/scene.example.json > /dev/null
+          bash -n blender/tests/test_scene.sh
+
       - name: Run public engineering edition tests
         run: |
           (cd cybernetics && python -m unittest discover -s tests -v)
