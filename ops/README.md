@@ -14,4 +14,4 @@ python -m pip install -r requirements-md2html.txt
 python -m unittest discover -s tests -v
 ```
 
-Media commands use the corresponding FFmpeg/ExifTool executables. Input paths, destinations and operating settings are explicit command arguments. The original MIT license is retained; source file identities are recorded in [SOURCES.json](../SOURCES.json).
+Convert trusted Markdown documents; embedded HTML is preserved. Media commands use the corresponding FFmpeg/ExifTool executables. Input paths, destinations and operating settings are explicit command arguments. The original MIT license is retained; source file identities are recorded in [SOURCES.json](../SOURCES.json).
