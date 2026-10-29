@@ -29,7 +29,7 @@ jobs:
         run: |
           pip install pytest -r voice-agent/requirements.txt -r voice-commander/requirements.txt -r news-briefing/requirements.txt
           # Install logistics dashboard deps
-          pip install pandas plotly dash dash-bootstrap-components || true
+          pip install pandas plotly dash dash-bootstrap-components -r ops/requirements-md2html.txt
 
       - name: Run smoke tests
         env:
@@ -38,6 +38,17 @@ jobs:
           TWILIO_AUTH_TOKEN: "test-token"
           CONTACT_PHONE: "+15550000000"
         run: pytest tests/ -q --tb=short
+
+      - name: Validate Blender scene sources
+        run: |
+          python -m py_compile blender/scene.py
+          python -m json.tool blender/scene.example.json > /dev/null
+          bash -n blender/tests/test_scene.sh
+
+      - name: Run public engineering edition tests
+        run: |
+          (cd cybernetics && python -m unittest discover -s tests -v)
+          (cd ops && python -m unittest discover -s tests -v)
 
       - name: Run AXIOM Voice Commander tests
         run: |

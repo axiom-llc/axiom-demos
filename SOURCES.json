@@ -1,0 +1,213 @@
+{
+  "schema": "axiom/public-engineering-extract-v1",
+  "date": "2026-10-29",
+  "sources": [
+    {
+      "destination": "ops/md2html.py",
+      "repository": "axiom-llc/axiom-ops",
+      "revision": "88353d4987ae36be40685186a29592bcbf3fd5dc",
+      "path": "md2html.py",
+      "git_blob_sha": "71117edeef848618eb73f0803fa54ceba5c0fe55",
+      "mode": "100755"
+    },
+    {
+      "destination": "ops/requirements-md2html.txt",
+      "repository": "axiom-llc/axiom-ops",
+      "revision": "88353d4987ae36be40685186a29592bcbf3fd5dc",
+      "path": "requirements-md2html.txt",
+      "git_blob_sha": "21b3c0d128fac4fe442207075b45875c03ec2b80",
+      "mode": "100644"
+    },
+    {
+      "destination": "ops/converters/json_to_md.py",
+      "repository": "axiom-llc/axiom-ops",
+      "revision": "88353d4987ae36be40685186a29592bcbf3fd5dc",
+      "path": "converters/json_to_md.py",
+      "git_blob_sha": "2743ecc25d5e0772e62e2232315a464c32a28d35",
+      "mode": "100755"
+    },
+    {
+      "destination": "ops/files/bundle-text.sh",
+      "repository": "axiom-llc/axiom-ops",
+      "revision": "88353d4987ae36be40685186a29592bcbf3fd5dc",
+      "path": "files/bundle-text.sh",
+      "git_blob_sha": "a36b3aa2f4c6382eac190ae7a6b4db1b93359862",
+      "mode": "100755",
+      "security_overlay": "Literal filename bundling and output-directory containment; original blob retained as provenance."
+    },
+    {
+      "destination": "ops/files/split_text_bundle.py",
+      "repository": "axiom-llc/axiom-ops",
+      "revision": "88353d4987ae36be40685186a29592bcbf3fd5dc",
+      "path": "files/split_text_bundle.py",
+      "git_blob_sha": "1cae1dab41f76de43cd3d22e7595342b38982637",
+      "mode": "100755",
+      "security_overlay": "Literal filename bundling and output-directory containment; original blob retained as provenance."
+    },
+    {
+      "destination": "ops/media/extract-frames.sh",
+      "repository": "axiom-llc/axiom-ops",
+      "revision": "88353d4987ae36be40685186a29592bcbf3fd5dc",
+      "path": "media/extract-frames.sh",
+      "git_blob_sha": "4d8e951acb7fb852a436e628bbaf4c3414d5c8d5",
+      "mode": "100755"
+    },
+    {
+      "destination": "ops/media/check-metadata.sh",
+      "repository": "axiom-llc/axiom-ops",
+      "revision": "88353d4987ae36be40685186a29592bcbf3fd5dc",
+      "path": "media/check-metadata.sh",
+      "git_blob_sha": "0ecfea580360984b84e5ea79f6ddadcb9d938f90",
+      "mode": "100755"
+    },
+    {
+      "destination": "ops/LICENSE",
+      "repository": "axiom-llc/axiom-ops",
+      "revision": "88353d4987ae36be40685186a29592bcbf3fd5dc",
+      "path": "LICENSE",
+      "git_blob_sha": "8aa9ee2f4fc41dfb480d572995d44522e439ccc8",
+      "mode": "100644"
+    },
+    {
+      "destination": "ops/tests/test_md2html.py",
+      "repository": "axiom-llc/axiom-ops",
+      "revision": "88353d4987ae36be40685186a29592bcbf3fd5dc",
+      "path": "tests/test_md2html.py",
+      "git_blob_sha": "81054a29f143a9fff1164fc1732a842752ea1956",
+      "mode": "100644"
+    },
+    {
+      "destination": "cybernetics/robotics/__init__.py",
+      "repository": "axiom-llc/axiom-cybernetics",
+      "revision": "f173c0684dd53326b3b1aca64f4f01f2c1359faa",
+      "path": "robotics/__init__.py",
+      "git_blob_sha": "18b15ffc7e0252e1f25a15a1262830d464a94d7f",
+      "mode": "100644"
+    },
+    {
+      "destination": "cybernetics/robotics/simulator.py",
+      "repository": "axiom-llc/axiom-cybernetics",
+      "revision": "f173c0684dd53326b3b1aca64f4f01f2c1359faa",
+      "path": "robotics/simulator.py",
+      "git_blob_sha": "79a7f6bb1a533e884ceae857bbf28a2b948ff6cf",
+      "mode": "100644"
+    },
+    {
+      "destination": "cybernetics/robotics/concept_eval.py",
+      "repository": "axiom-llc/axiom-cybernetics",
+      "revision": "f173c0684dd53326b3b1aca64f4f01f2c1359faa",
+      "path": "robotics/concept_eval.py",
+      "git_blob_sha": "c15caa006f728ab1804aaa7ea91899ef376ecc2e",
+      "mode": "100644"
+    },
+    {
+      "destination": "cybernetics/tests/test_simulator.py",
+      "repository": "axiom-llc/axiom-cybernetics",
+      "revision": "f173c0684dd53326b3b1aca64f4f01f2c1359faa",
+      "path": "tests/test_simulator.py",
+      "git_blob_sha": "3cbedc4d81afa7d85644a6ad8ec69ebf42081164",
+      "mode": "100644"
+    },
+    {
+      "destination": "cybernetics/simulations/msa-01-helix/scenarios.json",
+      "repository": "axiom-llc/axiom-cybernetics",
+      "revision": "f173c0684dd53326b3b1aca64f4f01f2c1359faa",
+      "path": "simulations/msa-01-helix/scenarios.json",
+      "git_blob_sha": "76ab88cea801304315285974b160d3a52275a455",
+      "mode": "100644"
+    },
+    {
+      "destination": "cybernetics/simulations/msa-10-forge/scenarios.json",
+      "repository": "axiom-llc/axiom-cybernetics",
+      "revision": "f173c0684dd53326b3b1aca64f4f01f2c1359faa",
+      "path": "simulations/msa-10-forge/scenarios.json",
+      "git_blob_sha": "f74e1098726d6a97508103981547073fb314d531",
+      "mode": "100644"
+    },
+    {
+      "destination": "blender/.gitignore",
+      "repository": "axiom-llc/axiom-blender",
+      "revision": "7a5ae52d26d0b5f2b401aacaf866bceb2639e75c",
+      "path": ".gitignore",
+      "git_blob_sha": "27b5a9785eedc270afa6a31425dab3222b8b84fc",
+      "mode": "100644",
+      "presentation_overlay": false
+    },
+    {
+      "destination": "blender/LICENSE",
+      "repository": "axiom-llc/axiom-blender",
+      "revision": "7a5ae52d26d0b5f2b401aacaf866bceb2639e75c",
+      "path": "LICENSE",
+      "git_blob_sha": "8aa9ee2f4fc41dfb480d572995d44522e439ccc8",
+      "mode": "100644",
+      "presentation_overlay": false
+    },
+    {
+      "destination": "blender/Makefile",
+      "repository": "axiom-llc/axiom-blender",
+      "revision": "7a5ae52d26d0b5f2b401aacaf866bceb2639e75c",
+      "path": "Makefile",
+      "git_blob_sha": "7bd11c8137224f0aaad419e35dc47b53f589bb63",
+      "mode": "100644",
+      "presentation_overlay": false
+    },
+    {
+      "destination": "blender/README.md",
+      "repository": "axiom-llc/axiom-blender",
+      "revision": "7a5ae52d26d0b5f2b401aacaf866bceb2639e75c",
+      "path": "README.md",
+      "git_blob_sha": "6868165d7183eecd3b6c1c8e56ae2940818369cc",
+      "mode": "100644",
+      "presentation_overlay": true
+    },
+    {
+      "destination": "blender/examples/render.png",
+      "repository": "axiom-llc/axiom-blender",
+      "revision": "7a5ae52d26d0b5f2b401aacaf866bceb2639e75c",
+      "path": "examples/render.png",
+      "git_blob_sha": "2a62eb81acd7ceaf8855733cf35a6a9a18f40f3a",
+      "mode": "100644"
+    },
+    {
+      "destination": "blender/scene.example.json",
+      "repository": "axiom-llc/axiom-blender",
+      "revision": "7a5ae52d26d0b5f2b401aacaf866bceb2639e75c",
+      "path": "scene.example.json",
+      "git_blob_sha": "fc48a4fbfd6beaf6bfccad258613b1378226ad1d",
+      "mode": "100644",
+      "presentation_overlay": false
+    },
+    {
+      "destination": "blender/scene.py",
+      "repository": "axiom-llc/axiom-blender",
+      "revision": "7a5ae52d26d0b5f2b401aacaf866bceb2639e75c",
+      "path": "scene.py",
+      "git_blob_sha": "de370d6e258de7b70d058872b143b5bddad79eab",
+      "mode": "100644",
+      "presentation_overlay": false
+    },
+    {
+      "destination": "blender/tests/test_scene.sh",
+      "repository": "axiom-llc/axiom-blender",
+      "revision": "7a5ae52d26d0b5f2b401aacaf866bceb2639e75c",
+      "path": "tests/test_scene.sh",
+      "git_blob_sha": "8e2be70bf45b907a7e31792469c9398aab6792d1",
+      "mode": "100755",
+      "presentation_overlay": false
+    }
+  ],
+  "adapted_tests": [
+    {
+      "source": "axiom-ops/tests/test_migrated_tools.py",
+      "revision": "88353d4987ae36be40685186a29592bcbf3fd5dc",
+      "change": "Public subset excludes private LT1 backup SOP assertion and excluded backup script syntax check."
+    }
+  ],
+  "excluded": [
+    "private device/backup SOPs",
+    "account/host configuration",
+    "operational databases",
+    "private Git history",
+    "vehicle/source imagery"
+  ]
+}

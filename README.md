@@ -1,8 +1,22 @@
 # AXIOM Demos
 
-Applied integration examples for AXIOM components and adjacent automation
-workflows. Each demo has its own dependencies, configuration, and operational
-boundary; these examples are not a shared runtime or deployment product.
+Advanced AI applications, systems integrations, deterministic robotics simulation and engineering utilities from AXIOM. Each project includes its own entry points, dependencies and reproducible tests.
+
+## Public engineering editions
+
+### [cybernetics](./cybernetics/)
+
+Deterministic robotics simulation: authorization binding, safety envelopes, fault injection, telemetry and tamper-evident receipts.
+
+### [ops](./ops/)
+
+Reusable document, structured-text and media utilities with native regression tests.
+
+[Source provenance](SOURCES.json) records the exact imported engineering files.
+
+### [blender](./blender/)
+
+Declarative 3D scene automation with JSON-controlled materials, lighting and camera configuration. Original source and reference render retained.
 
 ## Included demonstrations
 
@@ -57,4 +71,4 @@ webhook reachability, and end-to-end telephony are outside that coverage.
 
 ---
 
-[AXIOM LLC](https://axiom-llc.github.io) · Examples, not a shared production runtime.
+[AXIOM LLC](https://axiom-llc.github.io) · Advanced systems engineering and runnable demonstrations.

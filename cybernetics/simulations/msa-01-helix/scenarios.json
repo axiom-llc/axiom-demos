@@ -1,0 +1,90 @@
+{
+  "schema": "axiom-robotics/simulation-scenarios/v1",
+  "concept_id": "msa-01-helix",
+  "scenarios": [
+    {
+      "id": "nominal-walk",
+      "stimulus": "authorized level-ground traversal within limits",
+      "expected": "COMPLETED",
+      "acceptance": [
+        "no envelope violation",
+        "deterministic telemetry order",
+        "receipt verifies"
+      ]
+    },
+    {
+      "id": "payload-overlimit",
+      "stimulus": "requested load exceeds configured payload envelope",
+      "expected": "REJECTED",
+      "acceptance": [
+        "no motion command emitted",
+        "reason identifies payload envelope"
+      ]
+    },
+    {
+      "id": "joint-sensor-disagreement",
+      "stimulus": "redundant joint sensors disagree beyond threshold",
+      "expected": "DEGRADED",
+      "acceptance": [
+        "assist torque reduced",
+        "affected joint cannot increase assistance",
+        "event recorded"
+      ]
+    },
+    {
+      "id": "thermal-limit",
+      "stimulus": "actuator or battery thermal limit crossed",
+      "expected": "SAFE_STOP",
+      "acceptance": [
+        "derate precedes stop where feasible",
+        "no increased output after limit",
+        "event recorded"
+      ]
+    },
+    {
+      "id": "energy-reserve",
+      "stimulus": "state of charge reaches protected reserve",
+      "expected": "DEGRADED",
+      "acceptance": [
+        "high-power modes disabled",
+        "egress reserve preserved",
+        "operator warned"
+      ]
+    },
+    {
+      "id": "controller-fault",
+      "stimulus": "primary real-time controller stops producing valid heartbeat",
+      "expected": "SAFE_STOP",
+      "acceptance": [
+        "independent safety island removes assist authority",
+        "passive support remains if mechanically available"
+      ]
+    },
+    {
+      "id": "operator-emergency-release",
+      "stimulus": "manual emergency release requested",
+      "expected": "SAFE_STOP",
+      "acceptance": [
+        "release path does not depend on main compute",
+        "actuation cannot re-enable without fresh authorization"
+      ]
+    },
+    {
+      "id": "network-loss",
+      "stimulus": "all external network connectivity lost",
+      "expected": "DEGRADED",
+      "acceptance": [
+        "local safety remains available",
+        "no cloud dependency for stop or egress"
+      ]
+    },
+    {
+      "id": "worldbuilding-module-present",
+      "stimulus": "fictional weapon/defense visualization metadata attached",
+      "expected": "REJECTED",
+      "acceptance": [
+        "metadata cannot enter executable robotics control interface"
+      ]
+    }
+  ]
+}

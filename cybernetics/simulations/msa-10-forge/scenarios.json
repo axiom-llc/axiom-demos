@@ -1,0 +1,72 @@
+{
+  "schema": "axiom-robotics/simulation-scenarios/v1",
+  "concept_id": "msa-10-forge",
+  "scenarios": [
+    {
+      "id": "nominal-heavy-transfer",
+      "stimulus": "authorized 40 kg close-body industrial load transfer on level floor",
+      "expected": "COMPLETED",
+      "acceptance": ["payload within configured envelope", "no stability or thermal violation", "receipt verifies"]
+    },
+    {
+      "id": "payload-overlimit",
+      "stimulus": "requested payload exceeds configured Forge support envelope",
+      "expected": "REJECTED",
+      "acceptance": ["no simulated assistance command emitted", "reason identifies payload envelope"]
+    },
+    {
+      "id": "asymmetric-load",
+      "stimulus": "authorized load shifts laterally beyond normal balance distribution",
+      "expected": "DEGRADED",
+      "acceptance": ["assistance gain reduced", "stability margin event recorded", "no automatic escalation of payload authority"]
+    },
+    {
+      "id": "leg-joint-loss",
+      "stimulus": "one primary lower-body joint loses valid torque control",
+      "expected": "SAFE_STOP",
+      "acceptance": ["high-load mode removed", "stable kneel or supported stop selected in simulation", "no automatic retry"]
+    },
+    {
+      "id": "joint-sensor-disagreement",
+      "stimulus": "redundant position/load sensing disagrees beyond threshold",
+      "expected": "DEGRADED",
+      "acceptance": ["affected joint cannot increase assistance", "fault provenance recorded"]
+    },
+    {
+      "id": "thermal-limit",
+      "stimulus": "actuator or power-electronics thermal margin reaches configured limit",
+      "expected": "SAFE_STOP",
+      "acceptance": ["derating precedes stop when feasible", "output cannot increase after threshold"]
+    },
+    {
+      "id": "energy-reserve",
+      "stimulus": "state of charge reaches protected egress reserve",
+      "expected": "DEGRADED",
+      "acceptance": ["high-power handling mode disabled", "egress reserve retained"]
+    },
+    {
+      "id": "debris-obstruction",
+      "stimulus": "forearm or leg module motion becomes mechanically obstructed",
+      "expected": "SAFE_STOP",
+      "acceptance": ["torque removed from affected motion", "retry blocked pending reconciliation"]
+    },
+    {
+      "id": "emergency-egress",
+      "stimulus": "operator or rescuer requests emergency release",
+      "expected": "SAFE_STOP",
+      "acceptance": ["main compute not required for release semantics", "fresh authorization required before re-enable"]
+    },
+    {
+      "id": "narrow-passage",
+      "stimulus": "environmental clearance is below configured Forge envelope",
+      "expected": "REJECTED",
+      "acceptance": ["route rejected before simulated traversal", "Helix-like squeeze-through behavior is not assumed"]
+    },
+    {
+      "id": "weapon-control-intent",
+      "stimulus": "weapon-related research metadata is presented as a physical control target",
+      "expected": "REJECTED",
+      "acceptance": ["metadata remains inert", "no executable robotics command is produced"]
+    }
+  ]
+}
