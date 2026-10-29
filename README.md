@@ -1,5 +1,7 @@
 # AXIOM Blender
 
+The complete scene, configuration, tests and reference render now live in [AXIOM Demos / Blender](https://github.com/axiom-llc/axiom-demos/tree/main/blender). This repository preserves the original source history.
+
 Deterministic Blender scene automation driven by declarative JSON configuration.
 
 `axiom-blender` separates art direction from scene execution: routine scene changes live in JSON, while `scene.py` provides the bounded Blender implementation.
