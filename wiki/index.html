@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src https://generativelanguage.googleapis.com; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<title>AXIOM Infinite Wiki</title>
+<link rel="icon" href="infinite-wiki-favicon.png">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}:root{--b03:#002b36;--b02:#073642;--b01:#586e75;--b0:#839496;--b1:#93a1a1;--cyan:#2aa198;--red:#dc322f}html{background:var(--b03);color:var(--b0);font:17px/1.85 Georgia,serif}body{max-width:680px;margin:0 auto;padding:2.5rem 1.75rem}header{margin-bottom:2rem}header small{display:block;color:var(--b01);font:700 .65rem/1.2 system-ui;letter-spacing:.14em;text-transform:uppercase;margin-bottom:.35rem}h1{color:var(--b1);font:500 1.6rem/1.2 system-ui}#keys,#bar{display:flex;gap:.5rem}#keys{margin-bottom:.5rem}#bar{margin-bottom:3rem}input{background:var(--b02);color:var(--b1);border:1px solid var(--b02);border-bottom-color:var(--b01);padding:.5rem .65rem;font:.8rem/1 system-ui;border-radius:2px;outline:none}input:focus{border-bottom-color:var(--cyan)}input::placeholder{color:var(--b01)}#gk,#q{flex:1;min-width:0}button{background:none;color:var(--b01);border:0;border-bottom:1px solid var(--b01);padding:.45rem .6rem;font:.8rem/1 system-ui;letter-spacing:.04em;cursor:pointer}button:hover:not(:disabled){color:var(--cyan);border-color:var(--cyan)}button:disabled{opacity:.3;cursor:not-allowed}#topic{font:.7rem/1 system-ui;letter-spacing:.12em;text-transform:uppercase;color:var(--b01);margin-bottom:.4rem}#headline{font:500 1.6rem/1.2 system-ui;color:var(--b1);margin-bottom:1.75rem}#content{color:var(--b0);min-height:2rem;white-space:pre-wrap}#content.loading::after{content:'▌';color:var(--cyan)}.w{cursor:pointer;border-bottom:1px solid transparent}.w:hover{color:var(--cyan);border-bottom-color:var(--b01)}.err{color:var(--red);font:.8rem/1.5 system-ui}.hint{color:var(--b01);font:.72rem/1.5 system-ui;margin-top:.45rem}@media(max-width:560px){#keys,#bar{flex-wrap:wrap}#gk,#q{flex-basis:100%}}
+</style>
+</head>
+<body>
+<header><small>AXIOM LLC / Applied AI</small><h1>Infinite Wiki</h1></header>
+<div id="keys"><input id="gk" type="password" placeholder="Gemini API key" autocomplete="off" spellcheck="false" aria-label="Gemini API key"></div>
+<p class="hint">Key stays in this page's memory and is sent only to Google's Gemini API.</p>
+<div id="bar"><input id="q" placeholder="Search topic" aria-label="Topic"><button id="go" type="button">go</button><button id="rand" type="button">rand</button></div>
+<div id="topic">topic</div><div id="headline">Hypertext</div><div id="content">Enter a Gemini API key, then search for a topic.</div>
+<script>
+'use strict';
+const MODEL='gemini-3.5-flash-lite';
+const RAND=['Entropy','Recursion','Emergence','Liminal','Signal','Void','Stochastic','Epoch','Flux','Eigenvalue'];
+let activeController=null, requestSerial=0, currentTopic='Hypertext';
+const gk=document.getElementById('gk'),q=document.getElementById('q'),head=document.getElementById('headline'),content=document.getElementById('content'),go=document.getElementById('go'),rand=document.getElementById('rand');
+function setBusy(value){go.disabled=value;rand.disabled=value;q.disabled=value}
+function fail(message){content.replaceChildren(Object.assign(document.createElement('span'),{className:'err',textContent:message}));content.classList.remove('loading')}
+function streamText(data){return data?.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('')||''}
+function render(text){content.replaceChildren();for(const token of text.split(/(\s+)/)){if(!/\S/.test(token)){content.append(document.createTextNode(token));continue}const topic=token.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu,'');if(!topic){content.append(document.createTextNode(token));continue}const span=document.createElement('span');span.className='w';span.textContent=token;span.tabIndex=0;span.role='link';span.onclick=()=>load(topic);span.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();load(topic)}};content.append(span)}}
+async function load(rawTopic){const topic=rawTopic.trim();const key=gk.value.trim();if(!topic)return;if(!key){fail('Gemini API key required.');return}if(activeController)activeController.abort();const controller=new AbortController();activeController=controller;const serial=++requestSerial;currentTopic=topic;head.textContent=topic;content.textContent='';content.className='loading';setBusy(true);try{const response=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:streamGenerateContent?alt=sse`,{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify({contents:[{parts:[{text:`Define "${topic}" in two concise, non-redundant, factual encyclopedia paragraphs. No headings, lists, or markdown.`}]}]}),signal:controller.signal});if(!response.ok)throw new Error(`Gemini API returned HTTP ${response.status}.`);if(!response.body)throw new Error('Gemini API returned no response stream.');const reader=response.body.getReader(),decoder=new TextDecoder();let buffer='',output='';while(true){const {done,value}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});const lines=buffer.split('\n');buffer=lines.pop()||'';for(const line of lines){if(!line.startsWith('data:'))continue;const payload=line.slice(5).trim();if(!payload||payload==='[DONE]')continue;let parsed;try{parsed=JSON.parse(payload)}catch{continue}output+=streamText(parsed);if(serial===requestSerial)content.textContent=output}}buffer+=decoder.decode();if(serial===requestSerial){if(!output.trim())throw new Error('Gemini API returned no text.');render(output)}}catch(error){if(error.name!=='AbortError'&&serial===requestSerial)fail(error.message||'Gemini request failed.')}finally{if(serial===requestSerial){content.classList.remove('loading');setBusy(false)}}}
+function submit(){const value=q.value.trim();if(value){q.value='';load(value)}}
+go.onclick=submit;q.onkeydown=e=>{if(e.key==='Enter')submit()};rand.onclick=()=>{let next;do{next=RAND[Math.floor(Math.random()*RAND.length)]}while(next.toLowerCase()===currentTopic.toLowerCase()&&RAND.length>1);load(next)};
+window.InfiniteWiki={load,render};
+</script>
+</body>
+</html>
