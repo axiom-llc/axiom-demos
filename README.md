@@ -72,3 +72,9 @@ webhook reachability, and end-to-end telephony are outside that coverage.
 ---
 
 [AXIOM LLC](https://axiom-llc.github.io) · Advanced systems engineering and runnable demonstrations.
+
+## Consolidated example ownership — November 5, 2026
+
+[Blender](blender/) and [Infinite Wiki](wiki/) are developed here. Their original repositories are archived; source history, release URLs and compatibility links remain preserved. Wiki's complete five-file tree, including its original favicon and browser regression, is imported unchanged. Blender's complete code/configuration/license/reference render is retained; the intentional README presentation differs from its source archive. Original public source ancestry and all source branch/tag tips are preserved in this repository. See [consolidation manifest](consolidation-2026-11-05.json).
+
+Use the per-example requirements and test commands. Blender requires its documented5.2LTS runtime; availability of a different Blender version is not equivalent validation. No independent source-repository development or duplicate demo repository is needed.
