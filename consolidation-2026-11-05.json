@@ -1,0 +1,29 @@
+{
+  "schema": "axiom/retired-source-map-v1",
+  "sources": [
+    {
+      "name": "axiom-wiki-infinite",
+      "target": "axiom-demos",
+      "prefix": "wiki",
+      "sha": "01193deb551380ae4e038d233834de851be88dcf",
+      "import": true,
+      "files": 5,
+      "differences": [],
+      "exact_tree": true,
+      "history": "source main is an ancestor; all branch/tag tips namespaced"
+    },
+    {
+      "name": "axiom-blender",
+      "target": "axiom-demos",
+      "prefix": "blender",
+      "sha": "b4de8af803fafe0ce694645fcfe1796c4004c8f6",
+      "import": false,
+      "files": 8,
+      "differences": [
+        "README.md"
+      ],
+      "exact_tree": false,
+      "history": "source main is an ancestor; all branch/tag tips namespaced"
+    }
+  ]
+}
