@@ -1,0 +1,43 @@
+name: native-rsi
+
+on:
+  push:
+    branches: [main]
+    paths: ['rsi/**', 'ops/files/split_text_bundle.py', '.github/workflows/native-rsi.yml']
+  pull_request:
+    branches: [main]
+    paths: ['rsi/**', 'ops/files/split_text_bundle.py', '.github/workflows/native-rsi.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11','3.12']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Test source transformation and rollback
+        run: python -m unittest rsi.test_native -v
+      - name: Generate revision-bound patch
+        run: python -m rsi.native --output "$RUNNER_TEMP/candidates.json"
+      - name: Independently benchmark synthetic bundle parser
+        run: python -m rsi.benchmark --output "$RUNNER_TEMP/benchmark.json"
+      - name: Archive evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: axiom-demos-native-rsi-${{ matrix.python-version }}
+          path: |
+            ${{ runner.temp }}/candidates.json
+            ${{ runner.temp }}/benchmark.json
+          retention-days: 14
+          if-no-files-found: warn

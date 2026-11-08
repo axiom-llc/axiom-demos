@@ -1,0 +1,5 @@
+# axiom-demos native RSI
+
+A deterministic, read-only source-to-patch generator proposes a single repository-specific optimization of `ops/files/split_text_bundle.py`. The existing regular expression still validates every potential END marker; the candidate filters nonmatching content lines using the literal mandatory marker prefix before invoking regex matching. It does not change the filesystem output contract or alter the source file.
+
+`python -m rsi.native` generates a revision-bound unified diff; `python -m rsi.benchmark` compares baseline/candidate semantics on a 9000-line synthetic bundle, runs malformed input and unchanged output checks, and measures 11 alternated paired samples × 30 operations. Regression tests verify SHA binding, idempotence, fail-closed unsafe paths and exact Git apply/reverse. Native CI archives benchmark and generator receipts. No production optimization patch is applied. Full promotion requires independent representative gains, regression, exact-head CI and rollback proof.
