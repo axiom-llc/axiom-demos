@@ -1,0 +1,16 @@
+{
+  "schema": "axiom-native-rsi/v1",
+  "repository": "axiom-llc/axiom-demos",
+  "rules": [
+    {
+      "id": "bundle-end-marker-fast-filter",
+      "path": "ops/files/split_text_bundle.py",
+      "before": "            em = END_RE.match(lines[j])\n",
+      "after": "            em = END_RE.match(lines[j]) if lines[j].startswith(\"===== END FILE:\") else None\n",
+      "benchmark": "rsi/benchmark.py",
+      "tests": [
+        "rsi/test_native.py"
+      ]
+    }
+  ]
+}
